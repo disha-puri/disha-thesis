@@ -1,0 +1,29 @@
+Behavioral Synthesis is the process of compiling an Electronic System Level (ESL) design in
+high-level languages such as C, C++ or SystemC into Register-Transfer Level (RTL) implementation
+in hardware description languages such as Verilog or VHDL.
+Loop pipelining is a critical transformation in this process, which improves
+the throughput and reduces the latency of the synthesized hardware. It is
+complex and error-prone, and a small bug can result in faulty hardware with expensive
+ramifications. Therefore, it is critical to certify the loop pipelining transformation
+so that designers can trust the behavioral synthesis process.
+Certifying a loop pipelining transformation is however, a major research challenge
+because there is a huge semantic gap between the input sequential design and the output
+pipelined implementation, making it infeasible to verify their equivalence with automated sequential equivalence
+checking (SEC) techniques.
+
+Certification of a loop pipelining transformation is possible by a combination of theorem
+proving and SEC: (1) creating a certified pipelining algorithm which generates a reference
+pipeline model by exploiting pipeline generation information from the synthesis flow ({\em e.g.},
+the iteration interval of a generated pipeline) and (2) conduct SEC between the synthesized pipeline
+and this reference model. A key and arguably, the most complex component of this
+approach is development of the certified
+loop pipelining algorithm. We propose a framework of certified pipelining primitives which we show
+are essential for designing pipelining algorithms. Using our framework, we build
+a certified loop pipelining algorithm. We also propose a key invariant in certifying this algorithm, which links sequential loops
+with their pipelined counterparts. This is unlike other invariants that have been used in pipeline proofs.
+
+The result of this dissertation is a framework for creating certified pipelining algorithms
+utilizing a mechanical theorem prover. Using this framework, we have developed a certified loop pipelining
+algorithm. This certified algorithm is essential in the overall approach to certify
+behaviorally synthesized pipelined designs. We test the scalability and robustness of our algorithm on
+industrial-strength ESL designs that result in tens of thousands of lines of RTL implementations.
