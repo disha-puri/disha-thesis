@@ -1,0 +1,122 @@
+\chapter{Current Status and Future Plan}
+\label{sec:research-plan}
+
+%\section{Overall Schedule}
+%We started this research in March 2011 and plan to carry out this dissertation research in four years. Our research involves %developing a framework of certified pipelining primitives for building certified pipelining algorithms. And we build a loop pipelining %algorithm using this framework and certify it using ACL2 theorem prover. Also, we extend our framework to provide a proof sketch %to build and certify a function pipelining algorithm. The schedule of the major dissertation research components is illustrated in %Table~\ref{tr:schedule}.
+
+%\begin{center}
+%\footnotesize
+%\begin{table}[htb]
+%\begin{tabular} { | p{7.2cm}|  p{0.7cm} |  p{0.7cm} |  p{0.7cm} ||  p{0.7cm} | }
+
+%\hline
+%Major Tasks & 0-12 Mon. & 12-24 Mon. & 24-36 Mon. & 36-48 Mon. \\
+%\hline
+%\hline
+%Learn ACL2 and understand the overall project & $\checkmark$ & & &  \\
+%\hline
+%Formalize CCDFG syntax and semantics in ACL2 & $\checkmark$ & $\checkmark$ & &  \\
+%\hline
+%Identify challenges in certifying the previously proposed algorithm & $\checkmark$ & $\checkmark$ & &  \\
+%\hline
+%Propose the framework of certifiable primitives & &  $\checkmark$ & &  \\
+%\hline
+%Certify primitives using ACL2 theorem prover& &  $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+%\hline
+%Develop an algorithm for pipelining an unrolled loop & &  $\checkmark$ & $\checkmark$ &  \\
+%\hline
+%Develop the invariant for correspondence between sequential and pipelined loops & &  & $\checkmark$  &\\
+%\hline
+%Develop our loop pipelining algorithm & &  &  $\checkmark$  & $\checkmark$ \\
+%\hline
+%Prove that the invariant holds on our algorithm & &  &  $\checkmark$  & \\
+%\hline
+%Prove that the invariant implies correctness of our algorithm & &  &  $\checkmark$  & $\checkmark$ \\
+%\hline
+%Certify our algorithm end-to-end using ACL2 theorem prover& &  &  $\checkmark$  & $\checkmark$ \\
+%\hline
+%Evaluate our certified algorithm with automated SEC on industrial strength designs & &  &  & $\checkmark$ \\
+%\hline
+%Provide proof sketch for function pipelining algorithm & &  &  & $\checkmark$ \\
+%\hline
+%\end{tabular}
+%\caption{Dissertation Research Schedule}
+%\label{tr:schedule}
+%\end{table}
+%\end{center}
+
+\section{Conclusion}
+{\bf: Note to Disha: Need to rewrite this section}
+We have formalized the syntax and semantics of our intermediate representation (CCDFG) in ACL2. We have successfully identified and formalized a framework of succinct and provable primitives essential for loop pipelining algorithms.
+These primitives include $\phi$-elimination, shadow-register, interchange, conditional branch and superstep-construction primitive. Each primitive follows the invariant that the semantic runs of CCDFGs before and after application of the primitive are the same. As of this writing, we have certified $\phi$-elimination primitive, shadow-register primitive and superstep-construction primitive. We have formalized the interchange and conditional branch primitives but have not proved them yet.
+We have formalized our algorithm except the last component of adding conditional branches. We have also proved the 
+application of $\phi$-elimination primtive in the algorithm.
+
+Initially, we proposed a proof sketch certifying that an unrolled sequential loop is equivalent to its unrolled pipelined counterpart. We had planned to extend the unrolled loop to include loops with backedges. However, we realized that there is no direct link between the backedges of the two CCDFGs. While the backedge in the sequential CCDFG involves scheduling steps of a particular iteration in order, the backedge of the pipelined CCDFG includes scheduling steps across different iterations. This led us to identify and formalize our key invariant required for the correspondence between the sequential loop with the backedge and the pipelined loop with the backedge. As of this writing, we have proved that the corresponding relation is true for our algorithm and we have proved the implication chain from this relation to the correctness statement for our algorithm.
+
+Our current ACL2 script has $262$
+definitions and $258$ lemmas, including many lemmas about
+structural properties of CCDFGs (but not counting those from the false
+starts). We are still working on proving some key components of
+the proof obligations to show that the algorithm does not
+introduce data hazards.
+
+Now that we have a complete executable loop pipelining algorithm in ACL2, we first plan to show that our algorithm is practical and can be used for industrial strength designs with tens of thousands of RTL. We plan to evaluate on a variety of designs across different application domains. Given a sequential CCDFG and pipeline parameters from the behavioral synthesis tool, we will generate the pipeline reference model using our pipelining algorithm. Then, we will compare the pipeline reference model with the pipelined RTL generated by the behavioral synthesis tool using SEC. If we are able to generate the pipeline reference model using the same pipeline parameters as synthesis tools and can enable successful SEC, we can claim that our approach is practical and can be used for certifying industrial strength designs across different application domains.
+
+Next, we will certify the conditional branch and interchange primitive to complete certification of our framework of primitives. The conditional branch requires us to ensure that the control flow before and after removing the conditional branch is the same. The interchange primitive involves proving that if there are no read-write hazards between two adjacent scheduling steps $m$ and $n$, then executing $m$ followed by $n$ semantically equals to executing $n$ followed by $m$. The proof would involve statically analyzing all types of statements.
+
+For certification of the loop pipelining algorithm, we will first formalize the addition of conditonal branches in the pipelined loop. Then, we need to prove that each component of our algorithm described in Section~\ref{sec:pipelining-algorithm} maintains the invariant that the semantic runs of CCDFGs before and after that component are same. Even though each component essentially decomposes into proving that our primitive is correct, we still have to prove that every application of our primitives maintains certain assumptions and does not disrupt the certification flow. Also, we need to prove by induction that applying a primitive in the context of a CCDFG is correct. For example, proving that the shadow register primitive is correct in a CCDFG involves proving that only the microsteps required for the shadow register primitive are changed while others remain the same. Also, even if we can prove that the addition of shadow registers does not change the state of our CCDFG, we still need to prove that the execution of CCDFG after this step is the same, considering the data and control flows.
+
+
+%\begin{center}
+%\footnotesize
+%\begin{table}[t!]
+%\begin{tabular} { | p{9cm} |  p{2cm} | }
+%\hline
+%Item & Estimated time (weeks) \\
+%\hline
+%\hline
+%Test our reference algorithm on industrial strength designs & 4 \\
+%\hline
+%Certify the interchange primitive & 4 \\
+%\hline
+%Certify the conditional branch primitive & 2 \\
+%\hline
+%Certify branch removal transformation and unrolling the sequential loop once & 2 \\
+%\hline
+%Formalize the last step of the algorithm: adding conditional branches & 2 \\ 
+%\hline
+%Certify the shadow register transformation & 3 \\
+%\hline
+%Certify the data propagation transformation & 3 \\
+%\hline
+%Certify branch addition transformation & 2 \\
+%\hline
+%Certify the algorithm: prove application of primitives is correct at each step of the algorithm & 8 \\
+%\hline
+%Understand function pipelining algorithm & 4 \\
+%\hline
+%Provide proof of sketch for function pipelines & 6 \\
+%\hline
+%Write the dissertation & 10 \\
+%\hline
+%\hline
+%Total weeks & 40 \\
+%\hline
+
+%\end{tabular}
+%\caption{Timeline for remaining dissertation research}
+%\label{tr:research-timeline}
+%\end{table}
+%\end{center}
+
+With his dissertation, we expect to make the following major contributions:
+\begin{enumerate}[--]
+\item {\em Developed a framework of succinct certified primitives essential to build pipelining algorithms} : Our primitives are essential for developing certified loop pipelining algorithm in behavioral synthesis. This framework can also be extended to certify other pipelining algorithms such as function pipelines.
+\item {\em Designed and certified a reference loop pipelining algorithm} : We utilize our framework of certified primitives as backbone to build our certified loop pipelining algorithm. Since a primitive can only be applied under certain conditions, when certifying the algorithm, we prove that every application of our primitive is under correct conditions and certain assumptions are maintained after the application of a primitive. We also formalize and certify a key invariant for the correspondence between the sequential and pipelined CCDFGs and propose an algorithm for handling branch conditions in pipelines.
+\item {\em Evaluated our algorithm on industrial-strength designs} : We test our algorithm on a variety of designs across different application domains. If our algorithm can generate a pipeline reference model for a design, we can compare it to the pipelined RTL generated by behavioral synthesis tools using SEC. If the SEC passes, we certify the application of loop pipelining transformation is correct. We show that our algorithm can discharge industrial-strength designs.
+\end{enumerate} 
+
+\section{Future Work}
+
+{\bf: Note to Disha: Need to write this section}

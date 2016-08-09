@@ -1,0 +1,101 @@
+
+\newif\ifoddchapterpage
+\oddchapterpagetrue
+
+
+%    pdfborderstyle={/W 0}
+
+%  \usepackage{draftwatermark}
+%  \SetWatermarkText{\tt DRAFT - \today}
+%  \SetWatermarkLightness{0.85}
+%  \SetWatermarkScale{1.5}
+
+%\newcommand*{\longhookrightarrow}{\ensuremath{\lhook\joinrel\relbar\joinrel\rightarrow}}
+\newcommand*{\xhookrightarrow}{\ensuremath{\lhook\joinrel\xrightarrow}}
+
+
+%\def\hookrightarrowfill{\@@arrowfill{\lhook\mkern-8mu-}-\rightarrow}
+%\def\hookleftarrowfill{\@@arrowfill\leftarrow-{-\mkern-8mu\rhook}}
+%
+%\newcommand{\xrightarrow}[2][]{\ext@arrow 0359\hookrightarrowfill@{#1}{#2}}
+%\newcommand{\xleftarrow}[2][]{\ext@arrow 3095\hookleftarrowfill@{#1}{#2}}
+
+
+\newenvironment{query}{\begin{tabbing}\makebox[0.0in]{}\=\+\kill}{\end{tabbing}}
+\newcommand{\al}[1]{\'#1\\}
+\newcommand{\all}[1]{\'#1}
+
+%\newenvironment{TightItemize}
+%        {\begin{itemize} \vspace{-0.05in} \crunchList}
+%        {\vspace{-0.05in} \end{itemize}}
+
+
+
+%\newtheoremstyle{thesis-thm}% name of the style to be used
+%  {}   % measure of space to leave above the theorem. E.g.: 3pt
+%  {}   % measure of space to leave below the theorem. E.g.: 3pt
+%  {}   % name of font to use in the body of the theorem
+%  {}   % measure of space to indent
+%  {\bf}   % name of head font
+%  {}   % punctuation between head and body
+%  {.5em}% space after theorem head; " " = normal interword space
+%  {}   % Manually specify head
+%
+%\theoremstyle{thesis-thm}
+
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}{Lemma}[chapter]
+\newtheorem{proposition}{Proposition}[chapter]
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+
+%\newcommand{\qed}{\hfill \ensuremath{\Box}}
+
+
+% correct bad hyphenation here
+%\hyphenation{op-tical net-works semi-conduc-tor}
+
+
+%\makeatletter
+%\def\cleardoublepage{\clearpage\if@twoside \ifodd\c@page\else
+%    \hbox{}
+%    \thispagestyle{plain}
+%    \newpage
+%    \if@twocolumn\hbox{}\newpage\fi\fi\fi}
+%\makeatother \clearpage{\pagestyle{plain}\cleardoublepage}
+
+
+%\def\clrdb{\clearpage\if@twoside \ifodd\c@page\else
+%    \newpage
+%    \thispagestyle{empty} \mbox{}
+%    \if@twocolumn\hbox{}\newpage\fi\fi\fi}
+
+
+%\def \newoddpage {
+%    \ifodd\arabic{page}
+%    \newpage
+%    \thispagestyle{empty} \mbox{}
+%    \fi}
+%
+%\def \newevenpage {
+%    \ifodd \arabic{page}
+%    \else
+%    \newpage
+%    \thispagestyle{empty} \mbox{}
+%    \fi}
+
+
+\def \newoddpage {
+    \ifodd\arabic{page}
+    \newpage
+    \thispagestyle{empty} \mbox{}
+    \fi}
+
+\def \newevenpage {
+    \ifodd \arabic{page}
+    \else
+    \newpage
+    \thispagestyle{empty} \mbox{}
+    \fi}
