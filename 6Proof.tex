@@ -44,12 +44,61 @@ We must prove that
   semantics of all types of microsteps present in the
   language which is not trivial.
 
-  {\bf Conditional branch primitive:} The proof of the primitive follows from the definition of conditional branch primtive itself
-  as explained in Section 5. This proof would involve semantically analyzing the branch statements
-  and induction on the steps of the CCCDG.
+  {\bf Branch primitive:} The proof of the primitive follows from the definition of branch primtive itself as explained in Section 5. This proof would involve semantically analyzing the branch statements and induction on the steps of the CCCDG.
 
 {\bf Superstep construction primitive:} This primitive is proved
 using the interchange primitive and our key invariant described in detail below.
+
+\section{Correctness of Our Algorithm}
+
+The algorithm is essentially built from ground-up using primitives
+as shown in Section~\ref{sec:pipelining-algorithm}.
+Apart from proving correctness of each primitive and our key invariant,
+we also need to ensure that the primitive is applied by our
+  algorithm properly, {\em i.e.}, the environment
+  assumptions on which the {\bf correctness of primitive}
+  depends are maintained appropriately by the algorithm at
+  the point where the primitive is applied.  The
+correctness of each primitive discussed above, entails a
+so-called ``assume-guarantee'' reasoning: the prmitive is
+guaranteed to maintain the desired invariant if and only if
+it is applied under certain well-formed conditions.  To use
+these correctness statements to verify the algorithm, we
+must therefore prove that the algorithm applies each
+primitive appropriately, maintaining the well-formedness
+condition required for the correctness of the primitive.
+
+Note that verifying this requires an inductive proof
+relating the states of the CCDFG $C'$ generated after the
+application of the transformation with the original CCDFG
+$C$.  The induction is on the lengths of execution of $C$
+and $C'$.  Note that the induction is non-trivial because
+transformations have significant ``global'' effect on a
+CCDFG.  These include one or more of the following:
+
+\begin{enumerate}
+\item Replacing one microstep of $C$ with more than one
+  microsteps in $C'$ ({\em e.g.}, $\phi$-elimination), or
+\item Interchanging scheduling steps ({\em e.g.},
+  interchange), or
+\item Changing the variable being read or written in several
+  microsteps ({\em e.g.}, shadow register)
+\end{enumerate}
+The upshot is that an inductive theorem relating $C$ and
+$C'$ must be strong enough to comprehend the global effects.
+For instance, an inductive statement showing the
+correctness of $\phi$-elimination must account for the fact
+that the number of microsteps of $C$ is different from that
+of $C'$.  Thus an execution of $C$ for $n$ microsteps must
+correspond to an execution of $C'$ for a different number
+$m$ of microsteps, where the number $m$ is a function of $n$
+and the structures of $C$ and $C'$; the statement of the
+correctness of $\phi$-elimination must characterize the
+value of $m$ precisely, perhaps defining functions that
+statically and symbolically execute $C$ and $C'$, in order
+to be provable by induction.  Furthermore the functions so
+introduced for static symbolic execution must themselves be
+proven correct.
 
 
 \section{Key Invariant on Correspondence Between Back-edges of Sequential and Pipelined Loops}
@@ -215,66 +264,7 @@ explicitly capture the state of the executions that have
 been partially completed during each iteration of the
 pipeline ({\em ie}, each traversal of the back edge).
 
-\section{Correctness of Our Algorithm}
 
-{\bf: Note to Disha: This section needs to be rewritten and would expand further}
-
-{\bf: Note to Disha: Elaborate on this proof: One of the major things is proving that we can indeed 
-define the semantics of run of CCDFG as a straightline run under the restrictions we have considered}
-
-{\bf: Note to Disha: Explain the induction involved in data propagation step where we are moving the step out of 
-iteration in the previous iteration, it is a tricky induction}
-
-{\bf: Complexities involved in applying shadow register primitive to the algorithm}
-
-The algorithm is essentially built from ground-up using primitives
-as shown in Section~\ref{sec:pipelining-algorithm}.
-Apart from proving correctness of each primitive and our key invariant,
-we also need to ensure that the primitive is applied by our
-  algorithm properly, {\em i.e.}, the environment
-  assumptions on which the {\bf correctness of primitive}
-  depends are maintained appropriately by the algorithm at
-  the point where the primitive is applied.  The
-correctness of each primitive discussed above, entails a
-so-called ``assume-guarantee'' reasoning: the prmitive is
-guaranteed to maintain the desired invariant if and only if
-it is applied under certain well-formed conditions.  To use
-these correctness statements to verify the algorithm, we
-must therefore prove that the algorithm applies each
-primitive appropriately, maintaining the well-formedness
-condition required for the correctness of the primitive.
-
-Note that verifying this requires an inductive proof
-relating the states of the CCDFG $C'$ generated after the
-application of the transformation with the original CCDFG
-$C$.  The induction is on the lengths of execution of $C$
-and $C'$.  Note that the induction is non-trivial because
-transformations have significant ``global'' effect on a
-CCDFG.  These include one or more of the following:
-
-\begin{enumerate}
-\item Replacing one microstep of $C$ with more than one
-  microsteps in $C'$ ({\em e.g.}, $\phi$-elimination), or
-\item Interchanging scheduling steps ({\em e.g.},
-  interchange), or
-\item Changing the variable being read or written in several
-  microsteps ({\em e.g.}, shadow register)
-\end{enumerate}
-The upshot is that an inductive theorem relating $C$ and
-$C'$ must be strong enough to comprehend the global effects.
-For instance, an inductive statement showing the
-correctness of $\phi$-elimination must account for the fact
-that the number of microsteps of $C$ is different from that
-of $C'$.  Thus an execution of $C$ for $n$ microsteps must
-correspond to an execution of $C'$ for a different number
-$m$ of microsteps, where the number $m$ is a function of $n$
-and the structures of $C$ and $C'$; the statement of the
-correctness of $\phi$-elimination must characterize the
-value of $m$ precisely, perhaps defining functions that
-statically and symbolically execute $C$ and $C'$, in order
-to be provable by induction.  Furthermore the functions so
-introduced for static symbolic execution must themselves be
-proven correct.
 
 \section{Lessons from Previous False Starts}
 

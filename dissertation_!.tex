@@ -1,14 +1,201 @@
-\def\filedate{October 2016}
-% To be filled
-\def\docdate {Friday 22^{nd}. October 2016}
+\def\filedate{August 2016}
+
+%% To be filled by Disha
+%%\def\docdate {Friday 22^{nd}. May 2015}
 
 \documentclass[12pt]{report}
 
-%\usepackage{cite}
+%%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage{amssymb} % American mathematical society symbols
+%\usepackage{graphicx}
+%\usepackage{url}
+%\usepackage{float}
+%\usepackage{makeidx}
+%\usepackage{array}
+%\usepackage{verbatim}
+
+%\newcommand{\keywords}[1]{\par\addvspace\baselineskip
+%\noindent\keywordname\enspace\ignorespaces#1}
+\newcommand{\eg}{\mbox{\em e.g.}}
+\newcommand{\viz}{\mbox{\em viz.}}
+
+%\usepackage{setspace}
+\usepackage{algpseudocode}
+%\usepackage{algorithm}
+%\usepackage{soul}
+%\usepackage{amsmath}
+%\usepackage{amssymb}
+%\usepackage{enumerate}
+%\renewcommand{\labelitemi}{\tiny$\blacksquare$}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{cite}
+\usepackage{url}
+%%\usepackage{natbib}
+%%\setlength{\bibsep}{4pt}
+%%\usepackage{mathbbold} .. was giving error, package to be downloaded .. check later if needed
+\usepackage{subfig}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+%\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{enumerate}
+\usepackage{epsfig}
+\usepackage{latexsym, amssymb}
+%\usepackage{listings}
+%\usepackage{multirow}
+\usepackage{jldiss}
+\oddchapterpagefalse
+\usepackage{psu-thesis}
+\usepackage{verbatim}
+\usepackage{graphicx}
+
+\newif\ifusehyperref
+\usehyperreffalse
+\usehyperreftrue
+\ifusehyperref
+%\usepackage[usenames,dvipsnames]{color}
+\usepackage{hyperref}
+\hypersetup{
+    unicode=true,          % non-Latin characters in Acrobat��s bookmarks
+    bookmarks=true,         % show bookmarks bar?
+    pdftoolbar=true,        % show Acrobat��s toolbar?
+    pdfmenubar=true,        % show Acrobat��s menu?
+    pdffitwindow=false,     % window fit to page when opened
+    pdfstartview={FitH},    % fits the width of the page to the window
+    pdftitle={Certifying Loop Pipelining Transformations in Behavioral Synthesis},    % title
+    pdfauthor={Disha Puri},     % author
+    pdfsubject={Certifying Behaviorally Synthesized Loop Pipelines},   % subject of the document
+    pdfcreator={Disha Puri},   % creator of the document
+    pdfproducer={Disha Puri}, % producer of the document
+    pdfkeywords={High Level Synthesis }, % list of keywords
+    pdfnewwindow=true,      % links in new window
+    colorlinks=true,       % false: boxed links; true: colored links
+    linkcolor=black,          % color of internal links
+    %color=RawSienna
+}
+\fi
+\def \algref { \ifusehyperref \vspace{-0.3in} \fi }
+
+\usepackage{xcolor}
+
+\usepackage{graphicx}
+%\usepackage[export]{adjustbox}
+
+\renewcommand*\contentsname{Table of Contents}
+
+%\usepackage{titletoc}% http://ctan.org/pkg/titletoc
+
+\begin{document}
+
+    \title{Certifying Loop Pipelining Transformations in Behavioral Synthesis}
+    \titleline{Certifying Loop Pipelining Transformations in Behavioral Synthesis}
+
+    \author{Disha Puri}
+    \principaladviser{Fei Xie}{\ }
+    \firstreader{Jingke Li}
+    \secondreader{Suresh Singh}
+    \thirdreader{Sandip Ray}
+    \graduaterepresentative{Fu Li}{\ }
+    \departmenthead{Warren Harrison}
+    \grantdate{October}{}{2016}
+
+
+    %case (ELECTRONIC DISSERTATION)
+        \titlep
+        \prefatory
+        \prefacesection{Abstract}
+            \input{0abstract}
+        \prefacesection{Dedication}
+            \begin{center} {\em To, } \end{center}
+            \begin{center} {\em To} \end{center}
+        \prefacesection{Acknowledgments}
+            \input{ack}
+
+    \afterpreface
+	 
+    \body
+
+    \copyrightyear{2016}
+    \figurespagetrue
+    \tablespagetrue
+
+ %%   %\setcounter{page}{0}
+%% \titlecontents*{chapter}% <section-type>
+ %% [0pt]% <left>
+ %% {\addvspace{1em}}% <above-code>
+ %% {\bfseries\chaptername\ \thecontentslabel\quad}% <numbered-entry-format>
+%%  {}% <numberless-entry-format>
+ %% {\bfseries\hfill\contentspage}% <filler-page-format>
+  
+    %%-------------------------------------------------------------------------
+    \input{1introduction}
+    \ifoddchapterpage
+    \newoddpage
+    \fi
+
+    %%-------------------------------------------------------------------------
+    \input{2background}
+    \ifoddchapterpage
+    \newpage
+    \thispagestyle{empty} \mbox{}
+    \fi
+
+     %%-------------------------------------------------------------------------
+    \input{3formalization}
+    \ifoddchapterpage
+    \newpage
+    \thispagestyle{empty} \mbox{}
+    \fi
+
+    %%-------------------------------------------------------------------------
+    \input{4challenges}
+    \ifoddchapterpage
+    \newpage
+    \thispagestyle{empty} \mbox{}
+    \fi
+
+    %%-------------------------------------------------------------------------
+    \input{5pipelining-algorithm}
+    \ifoddchapterpage
+    \newpage
+    \thispagestyle{empty} \mbox{}
+    \fi
+
+    %%-------------------------------------------------------------------------
+    \input{6Proof}
+    \ifoddchapterpage
+    \newpage
+    \thispagestyle{empty} \mbox{}
+    \fi
+
+    %%-------------------------------------------------------------------------
+    \input{7SEC}
+    \ifoddchapterpage
+    \newpage
+    \thispagestyle{empty} \mbox{}
+    \fi
+
+    %%-------------------------------------------------------------------------
+    \input{8research-plan}
+    \ifoddchapterpage
+    \newpage
+    \thispagestyle{empty} \mbox{}
+    \fi
+
+    \bibliographystyle{plain}
+    \bibliography{bib}
+    %\bibliography{dissertation}
+
+\end{document}
+
+%% Extra .. will see later if any package is of use
+
 %%\usepackage{graphicx}
 %%\usepackage[export]{adjustbox}
 %%\usepackage{mathbbold}
-\usepackage{url}
 %%\urlstyle{same}
 %%
 %%\usepackage{times}
@@ -26,8 +213,6 @@
 %%
 %%\usepackage{ifthen}
 %%\usepackage{tikz}
-\usepackage{natbib}
-\setlength{\bibsep}{4pt}
 %%%\def\bibfont{\scriptsize}
 %%%\def\bibfont{\footnotesize}
 %%
@@ -44,191 +229,15 @@
 %%
 %%\newenvironment{notation}{}{}
 
-%\newcommand{\keywords}[1]{\par\addvspace\baselineskip
-%\noindent\keywordname\enspace\ignorespaces#1}
-\newcommand{\eg}{\mbox{\em e.g.}}
-\newcommand{\viz}{\mbox{\em viz.}}
-
-%\usepackage{mathbbold}
-\usepackage{subfig}
-\usepackage{amsthm}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{amsfonts}
-\usepackage{enumerate}
-\usepackage{algorithmic}
-\usepackage{algorithm}
-\usepackage{epsfig}
-\usepackage{latexsym, amssymb}
+%\usepackage{clrscode}
 
 %\usepackage{subfigure}
 
-
-%\usepackage{listings}
-%\usepackage{clrscode}
-
-
-\usepackage{multirow}
-\usepackage{jldiss}
-\oddchapterpagefalse
-\usepackage{psu-thesis}
-
-
-\newif\ifusehyperref
-\usehyperreffalse
-\usehyperreftrue
-\ifusehyperref
-\usepackage[usenames,dvipsnames]{color}
 %\usepackage[dvipdfm]{hyperref}
-\usepackage{hyperref}
-\hypersetup{
-    unicode=true,          % non-Latin characters in Acrobat��s bookmarks
-    bookmarks=true,         % show bookmarks bar?
-    pdftoolbar=true,        % show Acrobat��s toolbar?
-    pdfmenubar=true,        % show Acrobat��s menu?
-    pdffitwindow=false,     % window fit to page when opened
-    pdfstartview={FitH},    % fits the width of the page to the window
-    pdftitle={Certifying Loop Pipelining Transformations in Behavioral Synthesis},    % title
-    pdfauthor={Disha Puri},     % author
-    pdfsubject={Certifying Behaviorally Synthesized Loop Pipelines},   % subject of the document
-    pdfcreator={Disha Puri},   % creator of the document
-    pdfproducer={Disha Puri}, % producer of the document
-    pdfkeywords={Hardware, Software, High Level Synthesis}, % list of keywords
-    pdfnewwindow=true,      % links in new window
-    colorlinks=true,       % false: boxed links; true: colored links
-    linkcolor=black,          % color of internal links
-    citecolor=RawSienna
-}
-\fi
-\def \algref { \ifusehyperref \vspace{-0.3in} \fi }
-
-\usepackage{xcolor}
-
-\usepackage{graphicx}
-%\usepackage[export]{adjustbox}
-
-\renewcommand*\contentsname{Table of Contents}
-
-\usepackage{titletoc}% http://ctan.org/pkg/titletoc
-
-
-
-
-\begin{document}
-
-    \title{Certifying Loop Pipelining Transformations in Behavioral Synthesis}
-    \titleline{Certifying Loop Pipelining Transformations in Behavioral Synthesis}
-
-    \author{Disha Puri}
-    \principaladviser{Fei Xie}{\ }
-    \firstreader{Jingke Li}
-    \secondreader{Suresh Singh}
-    \thirdreader{Sandip Ray}
-    \graduaterepresentative{Fu Li}{\ }
-    \departmenthead{Warren Harrison}
-    \grantdate{October}{}{2016}
-
-
-    % case (ELECTRONIC DISSERTATION)
-        \titlep
-        \ifoddchapterpage
-        \newoddpage
-        \fi
-        \prefatory
-        \prefacesection{Abstract}
-            \input{0abstract}
-        \ifoddchapterpage
-        \newoddpage
-        \fi
-        \prefacesection{Dedication}
-            \begin{center} {\em To my grandmothers} \end{center}
-            \begin{center} {\em With whose blessings I am who I am today} \end{center}
-        \ifoddchapterpage
-        \newoddpage
-        \fi
-        \prefacesection{Acknowledgments}
-            \input{ack}
-    % esac
-
-    \ifoddchapterpage
-    \newoddpage
-    \fi
-    \afterpreface
-    \ifoddchapterpage
-    \newevenpage
-    \fi
-    \body
-
-    \copyrightyear{2016}
-    \figurespagetrue
-    \tablespagetrue
-
-    %\setcounter{page}{0}
-\titlecontents*{chapter}% <section-type>
-  [0pt]% <left>
-  {\addvspace{1em}}% <above-code>
-  {\bfseries\chaptername\ \thecontentslabel\quad}% <numbered-entry-format>
-  {}% <numberless-entry-format>
-  {\bfseries\hfill\contentspage}% <filler-page-format>
-  
-    %%-------------------------------------------------------------------------
-    \input{1introduction}
-    \ifoddchapterpage
-    \newoddpage
-    \fi
-
-    %%-------------------------------------------------------------------------
-    \input{2background}
-    \ifoddchapterpage
-    \newpage
-    \thispagestyle{empty} \mbox{}
-    \fi
-
-    %%-------------------------------------------------------------------------
-    \input{3formalization}
-    \ifoddchapterpage
-    \newoddpage
-    \fi
-
-
-    %-------------------------------------------------------------------------
-    \input{4challenges}
-    \ifoddchapterpage
-    \newoddpage
-    \fi
-
-    %%-------------------------------------------------------------------------
-    \input{5pipelining-algorithm}
-    \ifoddchapterpage
-    \newoddpage
-    \fi
-
-    %%-------------------------------------------------------------------------
-    \input{6Proof}
-    \ifoddchapterpage
-    \newoddpage
-    \fi
-    
-        %%-------------------------------------------------------------------------
-    \input{7SEC}
-    \ifoddchapterpage
-    \newoddpage
-    \fi
-    
-            %%-------------------------------------------------------------------------
-    \input{8research-plan}
-    \ifoddchapterpage
-    \newoddpage
-    \fi
-
-    \bibliographystyle{plain}
-    \bibliography{bib}
-
-
-\end{document}
 
 %%%\begin{document}
 %%%
+
 %%%\renewcommand{\textfraction}{0.10}
 %%%\renewcommand{\topfraction}{0.90}
 %%%\renewcommand{\bottomfraction}{0.70}

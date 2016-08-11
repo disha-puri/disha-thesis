@@ -95,7 +95,7 @@ Given a sequential loop $S$ in CCDFG $C$ and pipeline interval $I$, we can creat
 \begin{algorithm}[H]
 \caption{Certifiable loop pipeline}
 \label{algo:disha}
-\begin{algorithmic}[1]
+%\begin{algorithmic}[1]
 \Procedure{PipelineLoop}{S, I}
 \State $S_1 \leftarrow RemoveBranches(S)$
 \State $S_2 \leftarrow UnrollLoopOnce(S_1)$
@@ -106,16 +106,15 @@ Given a sequential loop $S$ in CCDFG $C$ and pipeline interval $I$, we can creat
 \State $P \leftarrow AddBranches (S_6) $
 \State \textbf{return} $(P)$.
 \EndProcedure
-\end{algorithmic}
+%\end{algorithmic}
 \end{algorithm}
 
 Below we describe the steps to convert a sequential loop CCDFG to a pipelined loop CCDFG in detail:
-
-{\bf Remove Branches}: We apply the conditional branch primitive on $S$ (c.f. Figure~\ref{fig:algo1}(a))
-to remove the conditional branch by explicitly defining the control flow in $S$. The output is a sequence of two CCDFG's $S_{loop}$ and $S_{Exit}$ connected through an edge as shown in Figure~\ref{fig:algo1}(b).
+ 
+{\bf Remove Branches}: We apply the branch primitive on $S$ (c.f. Figure~\ref{fig:algo1}(a)) to remove the conditional and unconditional branch by explicitly defining the control flow in $S$. The output is a sequence of two CCDFG's $S_{loop}$ and $S_{Exit}$ connected through an edge as shown in Figure~\ref{fig:algo1}(b).
 Note, that $S_{loop}$ does not contain the conditional branch originally present in $S$.
 Executing $S$ such that $S$ exits in the $(k+1)$st iteration is semantically same as executing $S_{loop}$ $k$ times
-followed by $S_{preExit}$. 
+followed by $S_{preExit}$. This is possible because the input CCDFG has only one conditional and one unconditional branch as per our definition of well-formed-ccdfg 
 
 {\bf Unroll Loop Once}: We have already established that the first iteration behaves differently than the rest of the
 iterations due to $\phi$-construct. So, here we simply unroll the loop $S_{loop}$ once. We call the first iteration

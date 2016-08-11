@@ -76,8 +76,8 @@ and the reference model can be compared with a pipelined RTL implementation usin
 can be mechanically verified to correctly preserve the semantics of
 sequential (non-pipelined) specification of loop execution.
 Hao et al. showed the viability of their approach by proposing such a loop pipelining algorithm.
-However, their algorithm was not certified and is in fact, as we discuss later in Chapter~\ref{sec:challenges},
-not easily certifiable. Therefore, this dissertation on developing a certified loop pipelining algorithm using our framework of certified primitives is important to facilitating formal verification of behaviorally synthesized pipeline designs.
+However, their algorithm was not complete as well as not certified. They have a proposal but have not implemented when and where should the branch statements exist in the pipelined loop. Also, as we discuss later in Chapter~\ref{sec:challenges}, their algorithm is not easily certifiable. Therefore, this dissertation on developing a certified loop pipelining algorithm using our framework of certified primitives is important to facilitating formal verification of behaviorally synthesized pipeline designs.
+
 
 \section{Problem Statement}
 Certifying an algorithm especially as complex as loop pipelining is
@@ -86,11 +86,10 @@ To develop a certified loop pipelining algorithm in behavioral synthesis,
 we need to address the following key challenges brought about by the semantic
 gap between the sequential and pipeline designs.
 \begin{enumerate}[--]
-\item {\em Formalizing an invariant that links loop in a sequential design
-with loop in the corresponding pipelined design.} A sequential loop executes its iterations in sequence. The previous loop iteration is fully complete before the next iteration. A pipelined design, however, overlaps the consecutive iterations of a given design based on pipeline interval. As a result, a loop in the pipelined design executes statements from different iterations of the corresponding sequential loop design. Identifying a provable inductive invariant that links the sequential loop with the pipelined loop is, therefore, a major challenge.
+\item {\em Formalizing an invariant that links loop in a sequential design with loop in the corresponding pipelined design.} A sequential loop executes its iterations in sequence. The previous loop iteration is fully complete before the next iteration. A pipelined design, however, overlaps the consecutive iterations of a given design based on pipeline interval. As a result, a loop in the pipelined design executes statements from different iterations of the corresponding sequential loop design. Identifying a provable inductive invariant that links the sequential loop with the pipelined loop is, therefore, a major challenge.
 \item {\em Identifying and certifying underlying primitives in a loop pipelining algorithm.} Certifying a complete loop pipelining algorithm at once, directly on the basis of input and expected output, would require a complex invariant proof and is also unnecessary in our case. We have taken an alternate approach of decomposing the algorithm into certifiable primitives.
 We propose that if each primitive maintains an invariant that the semantic run of the intermediate representation before and after application of the primitive is same, we can prove that the algorithm also maintains the invariant. This approach, however, requires a crisp understanding of the essential steps involved in developing a pipeline loop from a sequential loop. We need to succinctly identify primitives which maintain the given invariant and are also certifiable by theorem proving. Each primitive would require a systematic approach for its proof.
-%\item {\em Handle branch conditions.}  Branch conditions dictate the control flow. Presence of conditional branch instructions in a loop means that the loop is no longer executed in sequence. As a result, reasoning about branch conditions in each primitive of a complex algorithm can get very tricky.
+\item {\em Handle branch conditions.}  Branch conditions dictate the control flow. Presence of conditional branch instructions in a loop means that the loop is no longer executed in sequence. As a result, reasoning about branch conditions in each primitive of a complex algorithm can get very tricky.
 \item {\em Certifying the complete loop pipelining algorithm based on certified primitives.} Although, the primitives act as backbone for our algorithm, their certification alone does not automatically certify the entire algorithm. We need to identify the conditions under which a primitive is correct and make sure that every application of the primitive in the algorithm has the required assumptions.
 \end{enumerate}
 
