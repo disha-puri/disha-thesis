@@ -92,24 +92,26 @@ forwarding (forward value of data within a single clock cycle); thus $X$ and $Z$
 \section{Our Loop Pipelining Algorithm}
 Given a sequential loop $S$ in CCDFG $C$ and pipeline interval $I$, we can create a pipelined loop $P$ using Algorithm~\ref{algo:disha}. Note that every step of the algorithm is build from ground up using our framework of provable primitives such that the algorithm can be certified by theorem proving.
 
-% Facing problem in compiling theorems. Commented for now.s 
-%\begin{algorithm}
-%\begin{algorithmic}[1]
-%\Procedure{PipelineLoop}{S, I}
-%\State $S_1 \leftarrow RemoveBranches(S)$
-%\State $S_2 \leftarrow UnrollLoopOnce(S_1)$
-%\State $S_3 \leftarrow \phi-Elimination (S_2) $.
-%\State $S_4 \leftarrow DataPropagation (S_3, I) $.
-%\State $S_5 \leftarrow GenerateShadowRegisters (S_4, I) $.
-%\State $ S_6 \leftarrow SuperstepConstruction (S_5, I) $.
-%\State $P \leftarrow AddBranches (S_6) $
-%\State \textbf{return} $(P)$.
-%\EndProcedure
-%\end{algorithmic}
+{\bf Showing errors in printing algorithms. Trying to debug}
+%\begin{algorithm}[H]
+	%\caption{Pipelining Algorithm}
+	%\label{algo:loop}
+	%\begin{algorithmic}[1]
+		%\Procedure{PipelineLoop}{S, I}
+		%\State $S_1 \leftarrow RemoveBranches(S)$
+		%\State $S_2 \leftarrow UnrollLoopOnce(S_1)$
+		%\State $S_3 \leftarrow \phi-Elimination (S_2) $.
+		%\State $S_4 \leftarrow DataPropagation (S_3, I) $.
+		%\State $S_5 \leftarrow GenerateShadowRegisters (S_4, I) $.
+		%\State $ S_6 \leftarrow SuperstepConstruction (S_5, I) $.
+		%\State $P \leftarrow AddBranches (S_6) $
+		%\State \textbf{return} $(P)$.
+		%\EndProcedure
+	%\end{algorithmic}
 %\end{algorithm}
 
-%\caption{Pipelining Algorithm}
-%\label{algo:loop}
+%
+%x
 
 Below we describe the steps to convert a sequential loop CCDFG to a pipelined loop CCDFG in detail:
  
