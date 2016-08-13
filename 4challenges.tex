@@ -26,7 +26,7 @@ help of the example introduced earlier in Figure~\ref{fig:high-level-synthesis}(
 (a) & (b)
 \end{tabular}
 \end{center}
-\caption{{\bf Note to Disha: Create better figures} (a) Generate scheduling steps. After the pipeline is full, adding new iteration simply repeats the pipeline full stage. (b) Generate shadow registers.}
+\caption{(a) Generate scheduling steps. After the pipeline is full, adding new iteration simply repeats the pipeline full stage. (b) Generate shadow registers.}
 \label{fig:algorithm}
 \end{figure}
 
@@ -52,7 +52,7 @@ this trivial step affects the theorem proving process adversely.
 \label{fig:algorithm-2}
 \end{figure}
 
-{\bf Generate edges:} The algorithm adds the edges for data and control flow as shown in Figure~\ref{fig:algorithm-2}(a). Control edges are edges from one scheduling superstep to the next. Data forwarding edges forward data from one scheduling step to the next in a single scheduling superstep. Loop edge denotes the repetition of the pipeline full stage. Exit edges are from the scheduling steps to the $Exit$ block. Note that a pipelinable loop has only one $Exit$ block.
+{\bf Generate edges:} The algorithm adds the edges for data and control flow as shown in Figure~\ref{fig:algorithm-2}(a). Control edges are edges from one scheduling superstep to the next. Data forwarding edges forward data from one scheduling step to the next in a single scheduling superstep. Loop edge denotes the repetition of the pipeline full stage. Exit edges are from the scheduling steps to the $Exit$ block. Note that a pipelinable loop has only one $Exit$ block. Even though the concept of $Exit$ edges was introduced, but they were not implemented in the algorithm.
 
 {\bf Generate data propagation:} In Figure~\ref{fig:algorithm-2}(b), we require the value of $i'$ in $X_2$ to execute the following statement:
 $$ i := \phi [0, Entry][i', Z]$$
@@ -138,4 +138,9 @@ transformation and developing a pipeline generation
 algorithm using those primitives, achieving the dual goal of
 mechanical reasoning of the algorithm and amenability of the
 resulting reference model to SEC.
+
+\section{Enhancements}
+The previous algorithm introduces the concept of Exit edges but does not explain/implement them. Since, they check the output of algorithm with RTL under the assumption that the loop never exits, they did not face any issue while testing. However, adding the conditional branch back in the middle of a pipelined full loop stage requires a complex reasoning which we manage using one of our primitives, explained in ~\ref{sec:pipelining-algo}.
+
+Also, proving an algorithm using mechanical theorem prover gives us the confidence that the pipelined design is indeed correct. We are sure that there are no additional data hazards which have not been accounted for. That is one of the key reasons that we found the bug in the previous algorithm. They move a statement to make sure one particular data hazard is removed, but in doing so they move the statement across a conditional branch statement. Our primitves ensure that such a move is not possible.    
 

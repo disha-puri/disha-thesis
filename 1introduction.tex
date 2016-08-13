@@ -108,8 +108,7 @@ systems in that it explicitly specifies the correspondence between the
 sequential and pipelined programs at each transition.  We elaborate on our invariant in Chapter~\ref{sec:proof}. 
 We have proved that our algorithm satisfies this invariant.
 
--- Think more about this paragraph --
-We have certified the algorithm end-to-end which means that we have proved that running a sequential loop is same as ... pipeline.. given certain restrictions ..  We elaborate on the proof in our proof sketch in Chapter~\ref{sec:proof}. Our proof sketch shows that our primitives are sufficient and essential and that we can build a certified loop pipelining algorithm from ground up using our framework.
+We have certified the algorithm end-to-end which means that given a well-formed-ccdfg (definition explained later in Chapter~\ref{sec:pipelining-algorithm}, we show that running a sequential loop (with branches to dictate the control flow) is equivalent to running the pipelined loop created using our algorithm. We elaborate on the proof in our proof sketch in Chapter~\ref{sec:proof}. Our proof sketch shows that our primitives are sufficient and essential and that we can build a certified loop pipelining algorithm from ground up using our framework.
 
 The major contributions of our dissertation are:
 \begin{enumerate}[--]

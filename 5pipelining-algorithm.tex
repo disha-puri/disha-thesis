@@ -3,18 +3,18 @@
 
 Pipeline synthesis is based on the key observation that
 execution of successive iterations can be overlapped as long
-as no data hazard is introduced. Thus, the two main
+as no data hazard is introduced and control flow is correctly dictated at the time of exit. Thus, the three main
 activities of a pipeline synthesis algorithm are to
-(1)~identify and remove possible hazards, and (2)~overlap the
-successive iterations according to the pipeline interval. In our case,
+(1)~identify and remove possible hazards (2)~overlap the
+successive iterations according to the pipeline interval, and (3)~ensure proper placement of conditional and unconditional branches. In our case,
 the identification of data hazards is simplified since the synthesis tool
 provides a pipeline interval; thus, instead of {\em
 discovering} a pipeline interval ourselves so that no
-hazard is introduced, we merely need to work with the
+hazard is introduced, we need to work with the
 provided interval. We have developed a framework of certified pipelining
 primitives which allows us, among other things, to prevent possible data
 hazards. Our framework also provides a primitive
-to overlap successive iterations. We now discuss
+to overlap successive iterations and a provision to add and remove branches when required while still maintaining the control flow. We now discuss
 the framework in detail.
 
 \section{Framework of Provable Pipelining Primitives}
@@ -92,22 +92,24 @@ forwarding (forward value of data within a single clock cycle); thus $X$ and $Z$
 \section{Our Loop Pipelining Algorithm}
 Given a sequential loop $S$ in CCDFG $C$ and pipeline interval $I$, we can create a pipelined loop $P$ using Algorithm~\ref{algo:disha}. Note that every step of the algorithm is build from ground up using our framework of provable primitives such that the algorithm can be certified by theorem proving.
 
-\begin{algorithm}[H]
-\caption{Certifiable loop pipeline}
-\label{algo:disha}
+% Facing problem in compiling theorems. Commented for now.s 
+%\begin{algorithm}
 %\begin{algorithmic}[1]
-\Procedure{PipelineLoop}{S, I}
-\State $S_1 \leftarrow RemoveBranches(S)$
-\State $S_2 \leftarrow UnrollLoopOnce(S_1)$
-\State $S_3 \leftarrow \phi-Elimination (S_2) $.
-\State $S_4 \leftarrow DataPropagation (S_3, I) $.
-\State $S_5 \leftarrow GenerateShadowRegisters (S_4, I) $.
-\State $ S_6 \leftarrow SuperstepConstruction (S_5, I) $.
-\State $P \leftarrow AddBranches (S_6) $
-\State \textbf{return} $(P)$.
-\EndProcedure
+%\Procedure{PipelineLoop}{S, I}
+%\State $S_1 \leftarrow RemoveBranches(S)$
+%\State $S_2 \leftarrow UnrollLoopOnce(S_1)$
+%\State $S_3 \leftarrow \phi-Elimination (S_2) $.
+%\State $S_4 \leftarrow DataPropagation (S_3, I) $.
+%\State $S_5 \leftarrow GenerateShadowRegisters (S_4, I) $.
+%\State $ S_6 \leftarrow SuperstepConstruction (S_5, I) $.
+%\State $P \leftarrow AddBranches (S_6) $
+%\State \textbf{return} $(P)$.
+%\EndProcedure
 %\end{algorithmic}
-\end{algorithm}
+%\end{algorithm}
+
+%\caption{Pipelining Algorithm}
+%\label{algo:loop}
 
 Below we describe the steps to convert a sequential loop CCDFG to a pipelined loop CCDFG in detail:
  
@@ -147,20 +149,20 @@ Conflict occurs when the value being read in a microstep is not yet written in t
 In Figure~\ref{fig:algo1}(c) we found that the loop carried dependency $i'$ in $X$ would create a conflict when we would move $X$ before $Z$ while pipelining. So, first we relocate the microstep $i := i'$ to the beginning of $S_{loop}$ using interchange primitive in Figure~\ref{fig:algo2}(b). Then, we move the microstep to end of $S_{pre}$ and $S_{loop}$ and remove the microstep from $S_{Exit}$ in  Figure~\ref{fig:algo2}(c). Note that this preserves semantic equivalence.
 
 
-\begin{algorithm}
-\caption{Data propagation} \label{algo:data-propagation}
-\begin{algorithmic}[1]
-\Procedure{DataPropogration}{$L$}
-\State $msteps \leftarrow GetLoopCarriedDependencies(L)$.
-\For {\textbf{each} mstep \textbf{in} msteps}
- \If {$CheckConflict (L, mstep, N, I) \neq 0$}
-\State $L \leftarrow RelocateMStep (L, mstep)$.
-\EndIf
-\EndFor
-\State \textbf{return} $(L)$.
-\EndProcedure
-\end{algorithmic}
-\end{algorithm}
+%\begin{algorithm}[H]
+%\caption{Data propagation} \label{algo:data-propagation}
+%\begin{algorithmic}[1]
+%\Procedure{DataPropogration}{$L$}
+%\State $msteps \leftarrow GetLoopCarriedDependencies(L)$.
+%\For {\textbf{each} mstep \textbf{in} msteps}
+ %\If {$CheckConflict (L, mstep, N, I) \neq 0$}
+%\State $L \leftarrow RelocateMStep (L, mstep)$.
+%\EndIf
+%\EndFor
+%\State \textbf{return} $(L)$.
+%\EndProcedure
+%\end{algorithmic}
+%\end{algorithm}
 
 \begin{figure}[t!]
 \begin{center}
@@ -188,22 +190,22 @@ overwritten before being read, which means these are the variables that require 
 We apply the shadow register primitive on the microstep which writes the variable $(AddShadowRegister)$. We assign that
  variable to a new temporary variable called shadow register in every new scheduling step and replace all subsequent reads of that variable with the shadow register till its next write. In Figure~\ref{fig:algo3} (a), we introduce a shadow register $a\_reg$ in $X$ and $a\_reg2$ in $Y$.
 
-\begin{algorithm}
-\caption{Generate shadow registers} \label{algo:generate-pipeline-registers}
-\begin{algorithmic}[1]
-\Procedure{GenerateShadowRegisters}{$L$}
-\State $V \leftarrow GetAllVariables(L)$.
-\For {\textbf{each} v \textbf{in} V}
-\State $w_v \leftarrow WriteVariable (v, L)$.
-\State $r_v \leftarrow LastReadVariable (v, L)$.
-  \If {$RequireShadowRegister (r_v, w_v, I) \neq 0$}
-\State $L \leftarrow AddShadowRegister (w_v, L)$.
-\EndIf
-\EndFor
-\State \textbf{return} $(L)$.
-\EndProcedure
-\end{algorithmic}
-\end{algorithm}
+%\begin{algorithm}
+%\caption{Generate shadow registers} \label{algo:generate-pipeline-registers}
+%\begin{algorithmic}[1]
+%\Procedure{GenerateShadowRegisters}{$L$}
+%\State $V \leftarrow GetAllVariables(L)$.
+%\For {\textbf{each} v \textbf{in} V}
+%\State $w_v \leftarrow WriteVariable (v, L)$.
+%\State $r_v \leftarrow LastReadVariable (v, L)$.
+%  \If {$RequireShadowRegister (r_v, w_v, I) \neq 0$}
+%\State $L \leftarrow AddShadowRegister (w_v, L)$.
+%\EndIf
+%\EndFor
+%\State \textbf{return} $(L)$.
+%\EndProcedure
+%\end{algorithmic}
+%\end{algorithm}
 
 \begin{figure}[t!]
 \begin{center}

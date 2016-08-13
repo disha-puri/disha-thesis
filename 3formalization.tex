@@ -80,8 +80,7 @@ a loop with the following restrictions~\cite{hrx:dac-12}:
 \item no branching between the scheduling steps.
 \end{enumerate}
 
-{\bf Discuss with Sandip Sir}: We should mention that there is only one conditional branch and one unconditional branch related to loop,
-others can be handle via previous compiler transformations. Also, there is only one phi statement. 
+A loop is defined by existence of one conditional branch and one unconditional branch. Unconditional branch is at the end of the loop which enforces that the loop CCDFG is executed again from top. Conditional branch ensures that depending on the current value of the exitcondition variable loop can exit if required. Other intermediate branches have already been handled by compiler transformations prior to the pipelining step so we need not consider them in our reasoning. 
 
 These restrictions are not meant to simplify the problem, but reflect
 the kind of loops that can be actually pipelined during behavioral
@@ -101,7 +100,7 @@ transformation) in order to pipeline the outer loop.
 (a) & (b) & (c)
 \end{tabular}
 \end{center}
-\caption{(a) Loop in C; (b) Loop CCDFG before pipelining ({\bf Note for Disha: create a better figure. Discuss with Zhenkun}) ; (c) Pipelining increases throughput}
+\caption{(a) Loop in C; (b) Loop CCDFG before pipelining ; (c) Pipelining increases throughput}
 \label{fig:high-level-synthesis}
 \end{figure}
 
