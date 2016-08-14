@@ -6,11 +6,10 @@ In addition, we need to ensure that every time a primitive needs to be applied, 
 under which the primitive can be applied are maintained. We discuss both aspects below.
 
 \section{Correctness of Primitives}
-We must prove that
- applying a particular primitive is correct, {\em i.e.},
-  maintaining a certain invariant.  This is proven without
-  considering how it is applied in the context of a pipeline
-  synthesis algorithm. We give an outline of the proof to justify that the primitives are correct.
+We must prove that applying a particular primitive is correct, {\em i.e.},
+maintaining a certain invariant.  This is proven without
+considering how it is applied in the context of a pipeline
+synthesis algorithm. We give an outline of the proof to justify that the primitives are correct.
 
 {\bf $\phi$-elimination primitive:} We prove that the execution
   of a $\phi$-construct is the same as executing the corresponding
@@ -27,7 +26,8 @@ We must prove that
   effect on the state as executing a statement which reads
   $x\_reg$ till the next write of $x$. We
   determine the variables read and written in a statement by
-  analyzing the execution semantics.
+  analyzing the execution semantics. Note that $x\_reg$ has to be a new variable which
+  is neither written nor read in the given statements.
 
 {\bf Interchange primitive:} We prove that we can interchange two scheduling steps which do not have
   read-write conflict. Given an initial state, the state after
@@ -44,7 +44,7 @@ We must prove that
   semantics of all types of microsteps present in the
   language which is not trivial.
 
-  {\bf Branch primitive:} The proof of the primitive follows from the definition of branch primtive itself as explained in Section 5. This proof would involve semantically analyzing the branch statements and induction on the steps of the CCCDG.
+{\bf Branch primitive:} The proof of the primitive follows from the definition of branch primtive itself as explained in Section 5. This proof would involve semantically analyzing the branch statements and induction on the steps of the CCDFG. 
 
 {\bf Superstep construction primitive:} This primitive is proved
 using the interchange primitive and our key invariant described in detail below.
@@ -52,23 +52,21 @@ using the interchange primitive and our key invariant described in detail below.
 \section{Correctness of Our Algorithm}
 
 The algorithm is essentially built from ground-up using primitives
-as shown in Section~\ref{sec:pipelining-algorithm}.
-Apart from proving correctness of each primitive and our key invariant,
+as shown in Section~\ref{sec:pipelining-algorithm}. 
+However, apart from proving correctness of each primitive and our key invariant,
 we also need to ensure that the primitive is applied by our
-  algorithm properly, {\em i.e.}, the environment
-  assumptions on which the {\bf correctness of primitive}
-  depends are maintained appropriately by the algorithm at
-  the point where the primitive is applied.  The
-correctness of each primitive discussed above, entails a
-so-called ``assume-guarantee'' reasoning: the prmitive is
+algorithm properly, {\em i.e.}, the environment
+assumptions on which the {\bf correctness of primitive}
+depends are maintained appropriately by the algorithm at
+the point where the primitive is applied. 
+The correctness of each primitive discussed above, entails a
+so-called ``assume-guarantee'' reasoning: the primitive is
 guaranteed to maintain the desired invariant if and only if
 it is applied under certain well-formed conditions.  To use
 these correctness statements to verify the algorithm, we
 must therefore prove that the algorithm applies each
 primitive appropriately, maintaining the well-formedness
-condition required for the correctness of the primitive.
-
-Note that verifying this requires an inductive proof
+condition required for the correctness of the primitive.Note that verifying this requires an inductive proof
 relating the states of the CCDFG $C'$ generated after the
 application of the transformation with the original CCDFG
 $C$.  The induction is on the lengths of execution of $C$
@@ -99,6 +97,37 @@ statically and symbolically execute $C$ and $C'$, in order
 to be provable by induction.  Furthermore the functions so
 introduced for static symbolic execution must themselves be
 proven correct.
+
+We can take each stage one by one to understand the complexity involved in 
+verifying the algorithm as a whole over and above the verification of 
+individual primitives. 
+
+In the $AddBranches$ stage, which is the first stage of pipelining algorithm, we 
+have to create a correspondence between randomly executing a CCDFG with branches 
+using basic-block, sub-basic-block and location with executing a CCDFG without 
+a conditional and unconditional branch. This is similar to conditional branch primitive, but since 
+we have a random run on one side and a steamlined sequential run on the other side, 
+there are theorems involved with finding the next step randomly. (Discusss with Sandip Sir, whether these things are worth mentioning)
+
+After this step and for all the subsequent steps, we need to show that there are no relevant branches in CCDFG.
+
+The $\phi-to-assign$ stage, we replace one microstep of $C$ with more than one microsteps in $C'$. 
+In addition to inductively reasoning about application of a primitive in entire CCDFG, we also have to ensure
+that addition of new microsteps does not affect the basic structure of the CCDFG. These well-formed-conditions
+need to be maintained at each step to ensure that the primitives can be applied and they are not trivial.
+
+The data propagation stage, the first step involves identifying the appropriate statements that cause conflict 
+and applying interchange primitive. The second step involves moving a statement into the previous iteration. In a pre, loop and post,
+it means removing the statement from beginning of loop and adding it to end of loop. Also, statement is adding in end of pre and removed 
+from post. {\textbf: Note to Disha: take a look again at this, explain induction with help of diagram if required}.  These stages need to be
+repeated for as many variables as are in conflict. 
+
+In $Shadow-register$ stage, we need to reason about read and write of variables across a number of microsteps. This step needs to be repeated as well for
+multiple variables as required. In this case, however, the reasoning is very complicated. Since, after executing shadow register once, we can no longer say that the state in CCDFG-state1 is same as that of CCDFG-state2, only the real variables have same value. {\textbf: Note to Disha:  elaborate}
+
+In the $Superstep-construction$ stage
+
+In the $AddBranches back$ stage
 
 
 \section{Key Invariant on Correspondence Between Back-edges of Sequential and Pipelined Loops}
@@ -268,8 +297,7 @@ pipeline ({\em ie}, each traversal of the back edge).
 
 \section{Lessons from Previous False Starts}
 
-{\bf: Note to Disha: Explain how because of theorem proving, we avoided certain pitfalls even though
-it looked perfectly reasonable to design the algorithm that way}
+{\bf: Note to Disha: Explain how because of theorem proving, we avoided certain pitfalls even though it looked perfectly reasonable to design the algorithm that way}
 
 Before we came up with our approach of building a pipelining
 algorithm using a framework of certified pipelining primitives,

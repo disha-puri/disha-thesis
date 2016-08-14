@@ -92,7 +92,7 @@ forwarding (forward value of data within a single clock cycle); thus $X$ and $Z$
 \section{Our Loop Pipelining Algorithm}
 Given a sequential loop $S$ in CCDFG $C$ and pipeline interval $I$, we can create a pipelined loop $P$ using Algorithm~\ref{algo:disha}. Note that every step of the algorithm is build from ground up using our framework of provable primitives such that the algorithm can be certified by theorem proving.
 
-{\bf Showing errors in printing algorithms. Trying to debug}
+{\bf Note to Disha: Showing errors in printing algorithms. Trying to debug}
 %\begin{algorithm}[H]
 	%\caption{Pipelining Algorithm}
 	%\label{algo:loop}
@@ -149,6 +149,7 @@ $GetLoopCarriedDependencies$ identifies the microsteps where loop carried depend
 $CheckConflict$ checks whether there would be a conflict when we pipeline the loop.
 Conflict occurs when the value being read in a microstep is not yet written in the pipelined loop execution. If so, $RelocateMSteps$ works in two steps. It first relocates the microstep which reads the variable in an iteration to the starting of $S_{loop}$. This step can be proved by the interchange primitive since we have already established that the value has not been written yet so there are no read write hazards in between. In the next step, we relocate the microstep to the end of $S_{loop}$. Note, to maintain the invariant that executing CCDFG semantically before and after this relocation is the same, we need to add the microstep at the end of $S_{pre}$ as well and remove it from $S_{Exit}$. This step ensures that any variable which is being read has already been written. Note that in order to maintain the invariant, only those microsteps can be propagated which exist in $S_{Exit}$, which means only those steps which occur before the conditional branch in original CCDFG can be relocated. This ensures that our algorithm does not have the bug which the previously proposed algorithm had.
 In Figure~\ref{fig:algo1}(c) we found that the loop carried dependency $i'$ in $X$ would create a conflict when we would move $X$ before $Z$ while pipelining. So, first we relocate the microstep $i := i'$ to the beginning of $S_{loop}$ using interchange primitive in Figure~\ref{fig:algo2}(b). Then, we move the microstep to end of $S_{pre}$ and $S_{loop}$ and remove the microstep from $S_{Exit}$ in  Figure~\ref{fig:algo2}(c). Note that this preserves semantic equivalence.
+This step needs to be repeated for every variable found using $GetLoopCarriedDependencies$.
 
 
 %\begin{algorithm}[H]
@@ -190,7 +191,7 @@ overwritten before being read, which means these are the variables that require 
    distance is greater than $I$, the variable is assigned the new data value of the next iteration before the current iteration's value
     has been fully consumed; this warrants insertion of shadow registers in every scheduling step between the $r_v$ and $w_v$. The value is propagated every clock cycle following the CCDFG data flow.
 We apply the shadow register primitive on the microstep which writes the variable $(AddShadowRegister)$. We assign that
- variable to a new temporary variable called shadow register in every new scheduling step and replace all subsequent reads of that variable with the shadow register till its next write. In Figure~\ref{fig:algo3} (a), we introduce a shadow register $a\_reg$ in $X$ and $a\_reg2$ in $Y$.
+ variable to a new temporary variable called shadow register in every new scheduling step and replace all subsequent reads of that variable with the shadow register till its next write. In Figure~\ref{fig:algo3} (a), we introduce a shadow register $a\_reg$ in $X$ and $a\_reg2$ in $Y$. This step is also repeated for all the variables found using $GetAllVeriables$.
 
 %\begin{algorithm}
 %\caption{Generate shadow registers} \label{algo:generate-pipeline-registers}
@@ -235,13 +236,6 @@ Superstep construction on $S_{pre}$ and $S_{loop}$ creates a CCDFG with three pa
 \label{fig:algo4}
 \end{figure}
 
-{\bf Add Branches:}  We remove $S_{Exit}$ and add the conditional branches by using the interchange primitive and the conditional branch primtive. We have not fully formalized this step yet. 
-But, the idea can be explained as follows. Note in Figure~\ref{fig:algo3}(b), if there are no read write hazards in between the last scheduling step $Z$ of $P_{post}$ and $S_{Exit}$, we can interchange them using interchange primtive.
-Now recall from the conditional branch primitive that if there is a loop structure, here $P_{loop}$ followed by 
-a collection of microsteps from the beginning of $P_{loop}$ in sequence, say $P_{Exit}$ (here, a collection of $Z$, $Y$ and $S_{Exit}$),
-then we can add an exit conditional branch in $P_{loop}$ after the microsteps $P_{Exit}$ which exits the loop and points to
-the next scheduling step after the loop if the exit condition is true. We can add the conditional branch as shown in  Figure~\ref{fig:algo4}. We expect that when we formalize and prove this 
-transformation, we would have to define more conditions on the variables being evaluated at the exit conditional branch. 
-Later, we would also formalize adding the exit conditional branches on the iterations when the number of iterations is the sequential loop at run time is less than three in this example, which means that we exit even before we are in the pipeline loop. 
+{\bf Add Branches:}  To add the branches back, we use the a combination of interchange primitive and reverse of Branch primitive. Note in Figure~\ref{fig:algo3}(b), if there are no read write hazards in between the last scheduling step $Z$ of $P_{post}$ and $S_{Exit}$, we can interchange them using interchange primtive. Now recall from the branch primitive that if there is a loop structure, here $P_{loop}$ followed by a collection of microsteps from the beginning of $P_{loop}$ in sequence, say $P_{Exit}$ (here, a collection of $Z$, $Y$ and $S_{Exit}$), then we can add an exit conditional branch in $P_{loop}$ after the microsteps $P_{Exit}$ which exits the loop and points to the next scheduling step after the loop if the exit condition is true. We can add the conditional and the unconditional branch as shown in  Figure~\ref{fig:algo4}.  
 
 %Next we discuss an outline of the proof of our algorithm using theorem proving. 
