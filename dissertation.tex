@@ -1,0 +1,263 @@
+% https://www.pdx.edu/ogs/etd-formatting
+% https://www.pdx.edu/sites/www.pdx.edu.ogs/files/%ETD_Formatting_Checklist.pdf
+
+\def\filedate{October 2016}
+\def\docdate {Friday 7^{th}. October 2016}
+
+\documentclass[12pt]{report}
+\usepackage{url}
+\usepackage{natbib}
+\setlength{\bibsep}{4pt}
+\newcommand{\eg}{\mbox{\em e.g.}}
+\newcommand{\viz}{\mbox{\em viz.}}
+
+\usepackage{subfig}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{enumerate}
+\usepackage{epsfig}
+\usepackage{latexsym, amssymb}
+\usepackage[algo2e]{algorithm2e}
+\usepackage{algpseudocode}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{multirow}
+\usepackage{jldiss}
+%\oddchapterpagefalse
+\usepackage{psu-thesis}
+\newif\ifusehyperref
+\usehyperreffalse
+\usehyperreftrue
+\ifusehyperref
+\usepackage[usenames,dvipsnames]{color}
+%\usepackage[dvipdfm]{hyperref}
+\usepackage{hyperref}
+\hypersetup{
+    unicode=true,          % non-Latin characters in Acrobat��s bookmarks
+    bookmarks=true,         % show bookmarks bar?
+    pdftoolbar=true,        % show Acrobat��s toolbar?
+    pdfmenubar=true,        % show Acrobat��s menu?
+    pdffitwindow=false,     % window fit to page when opened
+    pdfstartview={FitH},    % fits the width of the page to the window
+    pdftitle={Certifying Loop Pipelining Transformations in Behavioral Synthesis},    % title
+    pdfauthor={Disha Puri},     % author
+    pdfsubject={Certifying Behaviorally Synthesized Loop Pipelines},   % subject of the document
+    pdfcreator={Disha Puri},   % creator of the document
+    pdfproducer={Disha Puri}, % producer of the document
+    pdfkeywords={Hardware, Software, High Level Synthesis}, % list of keywords
+    pdfnewwindow=true,      % links in new window
+    colorlinks=true,       % false: boxed links; true: colored links
+    linkcolor=black,          % color of internal links
+    citecolor=RawSienna
+}
+\fi
+\def \algref { \ifusehyperref \vspace{-0.3in} \fi }
+
+\usepackage{xcolor}
+\usepackage{graphicx}
+%\usepackage[export]{adjustbox}
+
+\renewcommand*\contentsname{Table of Contents}
+\usepackage{titletoc}% http://ctan.org/pkg/titletoc
+
+\begin{document}
+
+    \title{Certifying Loop Pipelining Transformations in Behavioral Synthesis}
+    \titleline{Certifying Loop Pipelining Transformations in Behavioral Synthesis}
+
+    \author{Disha Puri}
+    \principaladviser{Fei Xie}{\ }
+    \firstreader{Jingke Li}
+    \secondreader{Suresh Singh}
+    \thirdreader{Sandip Ray}
+    \graduaterepresentative{Fu Li}{\ }
+    \departmenthead{Warren Harrison}
+    \grantdate{October}{}{2016}
+    \let\cleardoublepage\clearpage
+     \titlep
+        \ifoddchapterpage
+        \newoddpage
+        \fi
+        \prefatory
+        \prefacesection{To do}
+            \input{todo}
+        \ifoddchapterpage
+        \newoddpage
+        \fi
+        \prefatory
+        \prefacesection{Abstract}
+            \input{0abstract}
+        \ifoddchapterpage
+        \newoddpage
+        \fi
+        \prefacesection{Dedication}
+            \begin{center} {\em To my grandmothers} \end{center}
+            \begin{center} {\em With whose blessings I am who I am today}     
+             \end{center}
+        \ifoddchapterpage
+        \newoddpage
+        \fi
+        \prefacesection{Acknowledgments}
+            \input{ack}
+    % esac
+    \ifoddchapterpage
+    \newoddpage
+    \fi
+    \afterpreface
+    \ifoddchapterpage
+    \newevenpage
+    \fi
+    \body
+    \copyrightyear{2016}
+    \figurespagetrue
+    \tablespagetrue
+
+    %\setcounter{page}{0}
+\titlecontents*{chapter}% <section-type>
+  [0pt]% <left>
+  {\addvspace{1em}}% <above-code>
+  {\bfseries\chaptername\ \thecontentslabel\quad}% <numbered-entry-format>
+  {}% <numberless-entry-format>
+  {\bfseries\hfill\contentspage}% <filler-page-format>
+  
+    %%-------------------------------------------------------------------------
+    \input{1introduction}
+    \ifoddchapterpage
+    \newoddpage
+    \fi
+
+    %%-------------------------------------------------------------------------
+    \input{2background}
+    \ifoddchapterpage
+    \newoddpage
+    \thispagestyle{empty} \mbox{}
+    \fi
+
+    %%-------------------------------------------------------------------------
+    \input{3formalization}
+    \ifoddchapterpage
+    \newoddpage
+    \fi
+
+
+    %-------------------------------------------------------------------------
+    \input{4challenges}
+    \ifoddchapterpage
+    \newoddpage
+    \fi
+
+    %%-------------------------------------------------------------------------
+    \input{5pipelining-algorithm}
+    \ifoddchapterpage
+    \newoddpage
+    \fi
+
+    %%-------------------------------------------------------------------------
+    \input{6Proof}
+    \ifoddchapterpage
+    \newoddpage
+    \fi
+    
+        %%-------------------------------------------------------------------------
+    \input{7SEC}
+    \ifoddchapterpage
+    \newoddpage
+    \fi
+    
+            %%-------------------------------------------------------------------------
+    \input{8research-plan}
+    \ifoddchapterpage
+    \newoddpage
+    \fi
+
+    \bibliographystyle{plain}
+    \bibliography{bib}
+
+
+\end{document}
+
+%%%\begin{document}
+%%%
+%%%\renewcommand{\textfraction}{0.10}
+%%%\renewcommand{\topfraction}{0.90}
+%%%\renewcommand{\bottomfraction}{0.70}
+%%%\renewcommand{\floatpagefraction}{0.90}
+%%%
+%%%\input{abstract}
+%%%
+%%%\setcounter{tocdepth}{2}
+%%%\tableofcontents
+%%%\newpage
+%%%
+%%%\input{introduction/introduction}
+%%%
+%%%\input{background/background}
+%%%
+%%%\input{sevd/sevd}
+%%%
+%%%\input{coverage/coverage}
+%%%
+%%%\input{actg/actg}
+%%%
+%%%\input{adfi/adfi}
+%%%
+%%%%\input{plan}
+%%%
+%%%%\bibliographystyle{splncs}
+%%%\bibliographystyle{plain}
+%%%\bibliography{dissertation}
+%%%
+%%%\end{document}
+
+%%\urlstyle{same}
+%%
+%%\usepackage{times}
+%%
+%%\usepackage{makeidx}  % allows for indexgeneration
+%%\usepackage{amsmath, amsfonts}
+%%\usepackage{latexsym, amssymb}
+%%\usepackage{multicol}
+%%\usepackage[T1]{fontenc}
+%%\usepackage{textcomp}
+%%\usepackage{multirow}
+%%\usepackage{subfigure}
+%%\usepackage{bchart}
+%%\usepackage[justification=centering]{caption}
+%%
+%%\usepackage{ifthen}
+%%\usepackage{tikz}
+
+%\usepackage{cite}
+%%\usepackage{graphicx}
+%%\usepackage[export]{adjustbox}
+%%\usepackage{mathbbold}
+%%%\def\bibfont{\scriptsize}
+%%%\def\bibfont{\footnotesize}
+%%
+%%\usepackage{setspace}
+%%\doublespacing
+%%
+%%%\usepackage[affil-it]{authblk}
+%%
+%%\newenvironment{query}{\begin{tabbing}\makebox[0.0in]{}\=\+\kill}{\end{tabbing}}
+%%\newcommand{\al}[1]{\'#1\\}
+%%\newcommand{\all}[1]{\'#1}
+%%
+%%\newtheorem{definition}{Definition}
+%%
+%%\newenvironment{notation}{}{}
+
+%\newcommand{\keywords}[1]{\par\addvspace\baselineskip
+%\noindent\keywordname\enspace\ignorespaces#1}
+
+%\usepackage{mathbbold}
+
+%\usepackage{subfigure}
+
+
+%\usepackage{listings}
+%\usepackage{clrscode}
+
+
