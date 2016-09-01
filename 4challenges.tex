@@ -139,8 +139,15 @@ algorithm using those primitives, achieving the dual goal of
 mechanical reasoning of the algorithm and amenability of the
 resulting reference model to SEC.
 
-\section{Enhancements}
-The previous algorithm introduces the concept of Exit edges but does not explain/implement them. Since, they check the output of algorithm with RTL under the assumption that the loop never exits, they did not face any issue while testing. However, adding the conditional branch back in the middle of a pipelined full loop stage requires a complex reasoning which we manage using one of our primitives, explained in ~\ref{sec:pipelining-algo}.
+\section{Enhancements: Think about name of section}
 
-Also, proving an algorithm using mechanical theorem prover gives us the confidence that the pipelined design is indeed correct. We are sure that there are no additional data hazards which have not been accounted for. That is one of the key reasons that we found the bug in the previous algorithm. They move a statement to make sure one particular data hazard is removed, but in doing so they move the statement across a conditional branch statement. Our primitves ensure that such a move is not possible.    
+Proving an algorithm using mechanical theorem prover gives us the confidence that the pipelined design is indeed correct. We can claim that if a pipeline loop is created, then there are no additional data hazards which have not been accounted for. {\bf rewrite : Also, since our final theorem proves that executing a sequential loop with branches randomly is same as executing a pipelined loop with branches randomly, we can confidently say that data and control flow is well-maintained}.   
+
+Because of the inherent need to make sure that each step of the algorithm maintaines the control flow, we had to deal with branches.  
+The previous algorithm introduces the concept of Exit edges but does not explain/implement them. We checked with the authors of the previous algorithm. They checked the output of their algorithm with RTL under the assumption that the loop never exits, hence they did not face any issue while testing. However, removing a conditional branch in a loop and furthermore, adding the conditional branch back in the middle of a pipelined full loop stage requires a complex reasoning which we manage using one of our primitives, explained in ~\ref{sec:pipelining-algo}.
+
+Also, the requirement that data flow is maintained at each step enabled us to find a bug in the previous algorithm. The previous algorithm moves a statement to make sure one particular data hazard is removed, but in doing so they move the statement across a conditional branch statement. Our primitves ensure that such a move is not possible. We have restructred the data propagation step so that instead of going across a conditional branch in the same iteration, the movement of step is now to the previous iteration. 
+
+Furthermore, there is a different mindset required when we merely write an algorithm Vs when we want to prove an algorithm using theorem proving. For example, adding a shadow register step may look like a trivial step which requires reasoning about read and write variables, but when we have to mathematically prove that such a step maintains the control and data flow, we have to reason about the fact that the new variable is indeed a new variable not introduced anywhere else in the algorithm. Moreover, after adding one such variable, the state of original CCDFG is no longer the same as new CCDFG since new shadow variable has been introduced. 
+
 
