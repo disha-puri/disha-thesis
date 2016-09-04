@@ -90,9 +90,9 @@ $Z$ then $Z$ cannot be in a superstep that precedes $X$ in the control/data flow
 forwarding (forward value of data within a single clock cycle); thus $X$ and $Z$ can be in a single superstep.
 
 \section{Our Loop Pipelining Algorithm}
-Given a sequential loop $S$ in CCDFG $C$ and pipeline interval $I$, we can create a pipelined loop $P$ using Algorithm~\ref{algo:disha}. Note that every step of the algorithm is build from ground up using our framework of provable primitives such that the algorithm can be certified by theorem proving.
+Given a sequential loop $S$ in CCDFG $C$ and pipeline interval $I$, we can create a pipelined loop $P$ using Algorithm~\ref{algo:loop}. Note that every step of the algorithm is build from ground up using our framework of provable primitives such that the algorithm can be certified by theorem proving.
 
-\begin{algorithm2e}
+\begin{algorithm}[H]
 \caption{Pipelining Algorithm}
 \label{algo:loop}
 \begin{algorithmic}[1]
@@ -107,7 +107,7 @@ Given a sequential loop $S$ in CCDFG $C$ and pipeline interval $I$, we can creat
 \State \textbf{return} $(P)$.
 \EndProcedure
 \end{algorithmic}
-\end{algorithm2e}
+\end{algorithm}
 
 Below we describe the steps to convert a sequential loop CCDFG to a pipelined loop CCDFG in detail:
  
@@ -147,21 +147,21 @@ Conflict occurs when the value being read in a microstep is not yet written in t
 In Figure~\ref{fig:algo1}(c) we found that the loop carried dependency $i'$ in $X$ would create a conflict when we would move $X$ before $Z$ while pipelining. So, first we relocate the microstep $i := i'$ to the beginning of $S_{loop}$ using interchange primitive in Figure~\ref{fig:algo2}(b). Then, we move the microstep to end of $S_{pre}$ and $S_{loop}$ and remove the microstep from $S_{Exit}$ in  Figure~\ref{fig:algo2}(c). Note that this preserves semantic equivalence.
 This step needs to be repeated for every variable found using $GetLoopCarriedDependencies$.
 
-%\begin{algorithm2e}[H]
-%\caption{Data propagation} 
-%\label{algo:data-propagation}
-%\begin{algorithmic}[1]
-%\Procedure{DataPropogration}{$L$}
-%\State $msteps \leftarrow GetLoopCarriedDependencies(L)$
-%\For {\textbf{each} mstep \textbf{in} msteps}
-%\If $CheckConflict (L, mstep, N, I) \neq 0$
-%\State $L \leftarrow RelocateMStep (L, mstep)$
-%\EndIf
-%\EndFor
-%\State \textbf{return} $(L)$
-%\EndProcedure
-%\end{algorithmic}
-%\end{algorithm2e}
+\begin{algorithm}[H]
+\caption{Data propagation} 
+\label{algo:data-propagation}
+\begin{algorithmic}[1]
+\Procedure{DataPropogration}{$L$}
+\State $msteps \leftarrow GetLoopCarriedDependencies(L)$
+\For {\textbf{each} mstep \textbf{in} msteps}
+\If {$CheckConflict (L, mstep, N, I) \neq 0$}
+\State $L \leftarrow RelocateMStep (L, mstep)$
+\EndIf
+\EndFor
+\State \textbf{return} $(L)$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
 \begin{figure}[t!]
 \begin{center}
@@ -189,23 +189,23 @@ overwritten before being read, which means these are the variables that require 
 We apply the shadow register primitive on the microstep which writes the variable $(AddShadowRegister)$. We assign that
  variable to a new temporary variable called shadow register in every new scheduling step and replace all subsequent reads of that variable with the shadow register till its next write. In Figure~\ref{fig:algo3} (a), we introduce a shadow register $a\_reg$ in $X$ and $a\_reg2$ in $Y$. This step is also repeated for all the variables found using $GetAllVeriables$.
 
-%\begin{algorithm2e}
-%\caption{Generate shadow registers} 
-%\label{algo:generate-pipeline-registers}
-%\begin{algorithmic}[1]
-%\Procedure{GenerateShadowRegisters}{$L$}
-%\State $V \leftarrow GetAllVariables(L)$.
-%\For {\textbf{each} v \textbf{in} V}
-%\State $w_v \leftarrow WriteVariable (v, L)$.
-%\State $r_v \leftarrow LastReadVariable (v, L)$.
-%\If {$RequireShadowRegister (r_v, w_v, I) \neq 0$}
-%\State $L \leftarrow AddShadowRegister (w_v, L)$.
-%\EndIf
-%\EndFor
-%\State \textbf{return} $(L)$.
-%\EndProcedure
-%\end{algorithmic}
-%\end{algorithm2e}
+\begin{algorithm}[H]
+\caption{Generate shadow registers} 
+\label{algo:generate-pipeline-registers}
+\begin{algorithmic}[1]
+\Procedure{GenerateShadowRegisters}{$L$}
+\State $V \leftarrow GetAllVariables(L)$.
+\For {\textbf{each} v \textbf{in} V}
+\State $w_v \leftarrow WriteVariable (v, L)$.
+\State $r_v \leftarrow LastReadVariable (v, L)$.
+\If {$RequireShadowRegister (r_v, w_v, I) \neq 0$}
+\State $L \leftarrow AddShadowRegister (w_v, L)$.
+\EndIf
+\EndFor
+\State \textbf{return} $(L)$.
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
 \begin{figure}[t!]
 \begin{center}

@@ -66,7 +66,7 @@ We elaborate below on the challenges
 in verifying the proposed algorithm and in general, any complex algorithm not written while keeping theorem proving in mind.
 %\end{enumerate}
 
-\section{Challenges in Verifying Previous Algorithm}
+\section{Challenges associated with Formal reasoning}
 
 To understand the complexities involved in mechanical
 certification of an algorithm that was not designed
@@ -93,25 +93,13 @@ add edges and data propagation, we intuitively expect the individual steps or at
 follow this invariant. However, since the algorithm has not been designed keeping theorem proving
 in mind, that is not the case. For example, if
 we consider the first step of the proposed algorithm -- {\bf generating new scheduling steps} by
-overlapping executions of an unrolled loop, we know that the semantic run 
-of the sequential scheduling steps is not the same as the run of new scheduling steps
-unless we prove that there are no data hazards. But, data hazards are not completely eliminated till the last step of the algorithm. Note, that the complete algorithm
-does follow the invariant as expected, but reasoning about the structure of the
+overlapping executions of an unrolled loop, we know that the execution 
+of the sequential scheduling steps is not the same as the execution of new scheduling steps
+unless we prove that there are no data hazards. But, data hazards are not completely eliminated till the last step of the algorithm. Note, that the complete algorithm does follow the invariant as expected, but reasoning about the structure of the
 complete algorithm at once is not easy.
 
-In addition, the previous algorithm does not take a CCDFG as input, but rather
-works with microsteps, edges and schedule of a CCDFG. That can get tricky because to analyze the
-semantic run of a CCDFG, we have to now simultaneously analyze all the three inputs. In our approach,
-we work with the CCDFG itself and define the run of a CCDFG semantically.
-
-Furthermore, the previous algorithm initially unrolls the loop and later adds
-a back edge to mimick the pipeline full stage. Unrolling loop with unique names
-for each microstep makes it easier to design the algorithm but formally we lose the notion
-that each microstep is part of a loop and not different in each iteration.
-Besides, unrolling loop makes it very difficult to reason for the correctness of the
-back edge in the
-full pipeline stage.
-
+Our first approach was to certify their implementation as it is using theorem proving. 
+But, our experience was that it is a difficult approach, one that we need not endure.
 In general, in order to certify such an arbitrary implementation,
 one has to either (1)~restructure the implementation into
 one that is more disciplined, and prove the equivalence
@@ -122,6 +110,18 @@ implementation.  Both approaches require extensive human
 interaction, resulting in the proverbial euphemism of proofs
 of programs being orders of magnitude more complex than the
 programs themselves~\cite{liu}.
+%In addition, the previous algorithm does not take a CCDFG as input, but rather
+%works with microsteps, edges and schedule of a CCDFG. That can get tricky because to analyze the
+%semantic run of a CCDFG, we have to now simultaneously analyze all the three inputs. In our approach,
+%we work with the CCDFG itself and define the run of a CCDFG semantically.
+
+%Furthermore, the previous algorithm initially unrolls the loop and later adds
+%a back edge to mimick the pipeline full stage. Unrolling loop with unique names
+%for each microstep makes it easier to design the algorithm but formally we lose the notion
+%that each microstep is part of a loop and not different in each iteration.
+%Besides, unrolling loop makes it very difficult to reason for the correctness of the
+%back edge in the
+%full pipeline stage.
 
 In our work, however, we can ``get away'' without verifying
 the specific implementation while still being able to
@@ -132,22 +132,21 @@ that generates a pipelined CCDFG from a sequential
 implementation which can be effectively applied with SEC.
 In particular, any certifiable algorithm that has the same
 input-output characteristic as the proposed algorithm
-is sufficient.  Thus, this dissertation focuses on identifying
+is sufficient.  Thus, our dissertation is on identifying
 certifiable primitives and invariants of a loop pipelining
 transformation and developing a pipeline generation
 algorithm using those primitives, achieving the dual goal of
 mechanical reasoning of the algorithm and amenability of the
 resulting reference model to SEC.
 
-\section{Enhancements: Think about name of section}
+\section{Importace of using Formal Methods for checking correctness}
 
-Proving an algorithm using mechanical theorem prover gives us the confidence that the pipelined design is indeed correct. We can claim that if a pipeline loop is created, then there are no additional data hazards which have not been accounted for. {\bf rewrite : Also, since our final theorem proves that executing a sequential loop with branches randomly is same as executing a pipelined loop with branches randomly, we can confidently say that data and control flow is well-maintained}.   
+Formally verifying an algorithm gives confidence that the pipelined design is indeed correct. We can claim that if a pipeline loop is created, then there are no additional data hazards which have not been accounted for. Also, since our final theorem proves that executing a sequential loop is same as executing the pipelined loop generated from our algorithm, we can confidently say that our algorithm is complete and data and control flows are well-maintained.   
 
-Because of the inherent need to make sure that each step of the algorithm maintaines the control flow, we had to deal with branches.  
-The previous algorithm introduces the concept of Exit edges but does not explain/implement them. We checked with the authors of the previous algorithm. They checked the output of their algorithm with RTL under the assumption that the loop never exits, hence they did not face any issue while testing. However, removing a conditional branch in a loop and furthermore, adding the conditional branch back in the middle of a pipelined full loop stage requires a complex reasoning which we manage using one of our primitives, explained in ~\ref{sec:pipelining-algo}.
+Checking correctness using formal methods prompted us to address the issues lacking in the previous algorithm. To ensure that control flow is maintained, we had to deal with branches. The previous algorithm introduces the concept of Exit edges but does not explain/implement them. The previous authors checked the output of their algorithm with RTL under the assumption that the loop never exits, hence they did not face any issue while testing. However, removing a conditional branch in a loop and furthermore, adding the conditional branch back in the middle of a pipelined loop requires complex reasoning which we manage using one of our primitives, explained in ~\ref{sec:pipelining-algo}.
 
-Also, the requirement that data flow is maintained at each step enabled us to find a bug in the previous algorithm. The previous algorithm moves a statement to make sure one particular data hazard is removed, but in doing so they move the statement across a conditional branch statement. Our primitves ensure that such a move is not possible. We have restructred the data propagation step so that instead of going across a conditional branch in the same iteration, the movement of step is now to the previous iteration. 
+Also, the invariant that data flow is maintained at each step enabled us to find a bug in the previous algorithm. The previous algorithm moves a statement to make sure one particular data hazard is removed, but in doing so they move the statement across a conditional branch statement. Our primitves ensure that such a move is not possible. We have restructred the data propagation step so that instead of going across a conditional branch in the same iteration, the movement of step is now to the previous iteration, explained in ~\ref{sec:pipelining-algo}. 
 
-Furthermore, there is a different mindset required when we merely write an algorithm Vs when we want to prove an algorithm using theorem proving. For example, adding a shadow register step may look like a trivial step which requires reasoning about read and write variables, but when we have to mathematically prove that such a step maintains the control and data flow, we have to reason about the fact that the new variable is indeed a new variable not introduced anywhere else in the algorithm. Moreover, after adding one such variable, the state of original CCDFG is no longer the same as new CCDFG since new shadow variable has been introduced. 
+%Furthermore, there is a different mindset required when we merely write an algorithm Vs when we want to prove an algorithm using theorem proving. For example, adding a shadow register step may look like a trivial step which requires simple reasoning about read and write variables, but when we have to mathematically prove that such a step maintains the control and data flow, we have to reason about the fact that the new variable is indeed a new variable not introduced anywhere else in the algorithm. 
 
 

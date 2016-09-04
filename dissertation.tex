@@ -1,38 +1,39 @@
-% https://www.pdx.edu/ogs/etd-formatting
-% https://www.pdx.edu/sites/www.pdx.edu.ogs/files/%ETD_Formatting_Checklist.pdf
-
-\def\filedate{October 2016}
+\def\filedate{2016}
 \def\docdate {Friday 7^{th}. October 2016}
 
 \documentclass[12pt]{report}
+%\usepackage{cite}
 \usepackage{url}
 \usepackage{natbib}
 \setlength{\bibsep}{4pt}
-\newcommand{\eg}{\mbox{\em e.g.}}
-\newcommand{\viz}{\mbox{\em viz.}}
-
+%\usepackage{mathbbold}
 \usepackage{subfig}
 \usepackage{amsthm}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsfonts}
-\usepackage{enumerate}
 \usepackage{epsfig}
-\usepackage{latexsym, amssymb}
-\usepackage[algo2e]{algorithm2e}
+
+\usepackage{setspace}
 \usepackage{algpseudocode}
-\usepackage{float}
 \usepackage{algorithm}
+
+\usepackage{float}
+\usepackage{latexsym, amssymb}
+%\usepackage{listings}
 \usepackage{multirow}
 \usepackage{jldiss}
-%\oddchapterpagefalse
+\usepackage{enumerate}
+\oddchapterpagefalse
 \usepackage{psu-thesis}
+\newcommand{\eg}{\mbox{\em e.g.}}
+\newcommand{\viz}{\mbox{\em viz.}}
+
 \newif\ifusehyperref
 \usehyperreffalse
 \usehyperreftrue
 \ifusehyperref
 \usepackage[usenames,dvipsnames]{color}
-%\usepackage[dvipdfm]{hyperref}
 \usepackage{hyperref}
 \hypersetup{
     unicode=true,          % non-Latin characters in Acrobat��s bookmarks
@@ -57,8 +58,7 @@
 
 \usepackage{xcolor}
 \usepackage{graphicx}
-%\usepackage[export]{adjustbox}
-
+\usepackage[export]{adjustbox}
 \renewcommand*\contentsname{Table of Contents}
 \usepackage{titletoc}% http://ctan.org/pkg/titletoc
 
@@ -72,36 +72,39 @@
     \firstreader{Jingke Li}
     \secondreader{Suresh Singh}
     \thirdreader{Sandip Ray}
-    \graduaterepresentative{Fu Li}{\ }
-    \departmenthead{Warren Harrison}
-    \grantdate{October}{}{2016}
-    \let\cleardoublepage\clearpage
-     \titlep
+    \graduaterepresentative{Fu Li}
+    \departmenthead{Wu-chi Feng}
+    \grantdate{xxx}{xx}{2016}
+
+
+    % case (ELECTRONIC DISSERTATION)
+        \titlep
         \ifoddchapterpage
         \newoddpage
         \fi
         \prefatory
-        \prefacesection{To do}
+        \prefacesection{CheckList for Disha}
             \input{todo}
-        \ifoddchapterpage
+         \ifoddchapterpage
         \newoddpage
         \fi
         \prefatory
         \prefacesection{Abstract}
-            \input{0abstract}
+            \input{0abstract}    
         \ifoddchapterpage
         \newoddpage
         \fi
         \prefacesection{Dedication}
             \begin{center} {\em To my grandmothers} \end{center}
-            \begin{center} {\em With whose blessings I am who I am today}     
-             \end{center}
+            \begin{center} {\em To my } \end{center}
         \ifoddchapterpage
         \newoddpage
         \fi
         \prefacesection{Acknowledgments}
+            %I would like to thank...
             \input{ack}
     % esac
+
     \ifoddchapterpage
     \newoddpage
     \fi
@@ -110,6 +113,7 @@
     \newevenpage
     \fi
     \body
+
     \copyrightyear{2016}
     \figurespagetrue
     \tablespagetrue
@@ -127,137 +131,34 @@
     \ifoddchapterpage
     \newoddpage
     \fi
-
-    %%-------------------------------------------------------------------------
     \input{2background}
     \ifoddchapterpage
     \newoddpage
-    \thispagestyle{empty} \mbox{}
     \fi
-
-    %%-------------------------------------------------------------------------
     \input{3formalization}
     \ifoddchapterpage
     \newoddpage
     \fi
-
-
-    %-------------------------------------------------------------------------
     \input{4challenges}
     \ifoddchapterpage
     \newoddpage
     \fi
-
-    %%-------------------------------------------------------------------------
     \input{5pipelining-algorithm}
     \ifoddchapterpage
     \newoddpage
     \fi
-
-    %%-------------------------------------------------------------------------
-    \input{6Proof}
+     \input{6Proof}
     \ifoddchapterpage
     \newoddpage
     \fi
-    
-        %%-------------------------------------------------------------------------
     \input{7SEC}
     \ifoddchapterpage
     \newoddpage
     \fi
-    
-            %%-------------------------------------------------------------------------
     \input{8research-plan}
     \ifoddchapterpage
     \newoddpage
     \fi
-
     \bibliographystyle{plain}
     \bibliography{bib}
-
-
 \end{document}
-
-%%%\begin{document}
-%%%
-%%%\renewcommand{\textfraction}{0.10}
-%%%\renewcommand{\topfraction}{0.90}
-%%%\renewcommand{\bottomfraction}{0.70}
-%%%\renewcommand{\floatpagefraction}{0.90}
-%%%
-%%%\input{abstract}
-%%%
-%%%\setcounter{tocdepth}{2}
-%%%\tableofcontents
-%%%\newpage
-%%%
-%%%\input{introduction/introduction}
-%%%
-%%%\input{background/background}
-%%%
-%%%\input{sevd/sevd}
-%%%
-%%%\input{coverage/coverage}
-%%%
-%%%\input{actg/actg}
-%%%
-%%%\input{adfi/adfi}
-%%%
-%%%%\input{plan}
-%%%
-%%%%\bibliographystyle{splncs}
-%%%\bibliographystyle{plain}
-%%%\bibliography{dissertation}
-%%%
-%%%\end{document}
-
-%%\urlstyle{same}
-%%
-%%\usepackage{times}
-%%
-%%\usepackage{makeidx}  % allows for indexgeneration
-%%\usepackage{amsmath, amsfonts}
-%%\usepackage{latexsym, amssymb}
-%%\usepackage{multicol}
-%%\usepackage[T1]{fontenc}
-%%\usepackage{textcomp}
-%%\usepackage{multirow}
-%%\usepackage{subfigure}
-%%\usepackage{bchart}
-%%\usepackage[justification=centering]{caption}
-%%
-%%\usepackage{ifthen}
-%%\usepackage{tikz}
-
-%\usepackage{cite}
-%%\usepackage{graphicx}
-%%\usepackage[export]{adjustbox}
-%%\usepackage{mathbbold}
-%%%\def\bibfont{\scriptsize}
-%%%\def\bibfont{\footnotesize}
-%%
-%%\usepackage{setspace}
-%%\doublespacing
-%%
-%%%\usepackage[affil-it]{authblk}
-%%
-%%\newenvironment{query}{\begin{tabbing}\makebox[0.0in]{}\=\+\kill}{\end{tabbing}}
-%%\newcommand{\al}[1]{\'#1\\}
-%%\newcommand{\all}[1]{\'#1}
-%%
-%%\newtheorem{definition}{Definition}
-%%
-%%\newenvironment{notation}{}{}
-
-%\newcommand{\keywords}[1]{\par\addvspace\baselineskip
-%\noindent\keywordname\enspace\ignorespaces#1}
-
-%\usepackage{mathbbold}
-
-%\usepackage{subfigure}
-
-
-%\usepackage{listings}
-%\usepackage{clrscode}
-
-

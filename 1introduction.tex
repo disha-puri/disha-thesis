@@ -3,12 +3,10 @@
 
 \section {Dissertation Summary}
 Developing a certified loop pipelining algorithm is a complex problem.
-We have developed a certified loop pipelining
-algorithm for behavioral synthesis by proper %methodical
-application of theorem proving techniques.
-The result of this dissertation is a
-framework of certified pipelining primitives which we believe
-are essential in developing any such pipelining algorithm. We systematically
+We have developed a certified loop pipelining algorithm for behavioral 
+synthesis by proper application of theorem proving techniques.
+The result of this dissertation is a framework of certified pipelining primitives 
+which are essential in developing any such pipelining algorithm. We systematically
 build a loop pipelining algorithm from ground up using these primitives and certify this algorithm.
 
 \section {Importance of This Research}
@@ -19,11 +17,10 @@ The idea of ESL is to raise the design abstraction by specifying the high-level,
 functional behavior of the hardware design. Designs are
 typically specified in a language such as C, C++, or SystemC.
 The approach is promising since the user is relieved of
-developing and optimizing low-level
-implementations. It has recently received significant
-attention, as the steady increase in hardware complexity has
-made it increasingly difficult to design high-quality
-designs through hand-crafted RTL under aggressive
+developing and optimizing low-level implementations. 
+It has recently received significant attention, as the steady 
+increase in hardware complexity has made it increasingly 
+difficult to design high-quality designs through hand-crafted RTL under aggressive
 time-to-market schedules. Studies have shown that ESL
 reduces the design effort by $50\%$ or more while attaining
 excellent performance results~\cite{Moussa99}.
@@ -51,7 +48,8 @@ throughput and reduce latency of the synthesized hardware by
 allowing temporal overlap of successive loop iterations. It
 is performed by most state-of-the-art commercial 
 synthesis tools~\cite{forte,vivado,legup}.
-Unfortunately, it is also one of the most complex transformations~\cite{tl:software-popl10},
+Unfortunately, it is also one of the most complex 
+transformations~\cite{tl:software-popl10},
 and posts challenges for developing viable automated certification
 techniques. In particular, efficient overlapping of loop
 iterations creates a design that differs significantly from
@@ -60,47 +58,36 @@ correspondence in internal signals between the two designs,
 making it infeasible to compare them through automated
 sequential equivalence checking (SEC).
 As a result, hardware designers are vary of using current behavioral synthesis tools as
-they are often deemed either (a) aggressively optimized but error-prone or (b) reliable but overly conservative,
-thus often producing circuits of poor quality
+they are often deemed either (a) aggressively optimized but error-prone or (b) reliable but overly conservative, thus often producing circuits of poor quality
 or performance. Therefore, ensuring
 correctness of behaviorally synthesized pipeline designs
 is a critical issue in bringing behavioral synthesis into practice.
 
-An approach for certifying loop pipelining transformations
-using a combination of SEC and theorem proving techniques
-has been proposed by Hao et al.~\cite{hrx:dac-12}. The most critical and complex
+An approach for certifying loop pipelining transformations using a combination of SEC and theorem proving techniques has been proposed by Hao et al.~\cite{hrx:dac-12}. The most critical and complex
 component of their approach (c.f. Section~\ref{subsec:reference-pipeline}) is developing
-a loop pipelining algorithm with two key properties: (1) it generates a reference pipeline model by exploiting
-pipeline generation information from the synthesis flow (e.g., the iteration interval of a generated pipeline) 
-and the reference model can be compared with a pipelined RTL implementation using SEC effectively, and (2) it
-can be mechanically verified to correctly preserve the semantics of
-sequential (non-pipelined) specification of loop execution.
-Hao et al. showed the viability of their approach by proposing such a loop pipelining algorithm.
-However, their algorithm was not complete as well as not certified. They have a proposal but have not implemented when and where should the branch statements exist in the pipelined loop. Also, as we discuss later in Chapter~\ref{sec:challenges}, their algorithm is not easily certifiable. Therefore, this dissertation on developing a certified loop pipelining algorithm using our framework of certified primitives is important to facilitating formal verification of behaviorally synthesized pipeline designs.
+a loop pipelining algorithm with two key properties: (1) it generates a reference pipeline model by exploiting pipeline generation information from the synthesis flow (e.g., the iteration interval of a generated pipeline) and the reference model can be compared with a pipelined RTL implementation using SEC effectively, and (2) it can be mechanically verified to correctly preserve the semantics of
+sequential (non-pipelined) specification of loop execution. Hao et al. showed viability of their approach by comparing pipeline generated from their algorithm with RTL implementation using SEC. However, their algorithm was not complete.The authors assume that we have a continuous loop so they do not reason about the control flow at exit condition. Also, their algorithm was not certified. Certification is a key component without which this framework is not sustainable. Therefore, this dissertation on developing a certified loop pipelining algorithm using our framework of certified primitives is important to facilitating formal verification of behaviorally synthesized pipeline designs.
 
 
 \section{Problem Statement}
-Certifying an algorithm especially as complex as loop pipelining is
-not easy by any known conventional methods.
-To develop a certified loop pipelining algorithm in behavioral synthesis,
+Certifying an algorithm especially as complex as loop pipelining is not easy by any known conventional methods. To develop a certified loop pipelining algorithm in behavioral synthesis,
 we need to address the following key challenges brought about by the semantic
 gap between the sequential and pipeline designs.
 \begin{enumerate}[--]
-\item {\em Formalizing an invariant that links loop in a sequential design with loop in the corresponding pipelined design.} A sequential loop executes its iterations in sequence. The previous loop iteration is fully complete before the next iteration. A pipelined design, however, overlaps the consecutive iterations of a given design based on pipeline interval. As a result, a loop in the pipelined design executes statements from different iterations of the corresponding sequential loop design. Identifying a provable inductive invariant that links the sequential loop with the pipelined loop is, therefore, a major challenge.
-\item {\em Identifying and certifying underlying primitives in a loop pipelining algorithm.} Certifying a complete loop pipelining algorithm at once, directly on the basis of input and expected output, would require a complex invariant proof and is also unnecessary in our case. We have taken an alternate approach of decomposing the algorithm into certifiable primitives.
-We propose that if each primitive maintains an invariant that the semantic run of the intermediate representation before and after application of the primitive is same, we can prove that the algorithm also maintains the invariant. This approach, however, requires a crisp understanding of the essential steps involved in developing a pipeline loop from a sequential loop. We need to succinctly identify primitives which maintain the given invariant and are also certifiable by theorem proving. Each primitive would require a systematic approach for its proof.
-\item {\em Handle branch conditions.}  Branch conditions dictate the control flow. Presence of conditional branch instructions in a loop means that the loop is no longer executed in sequence. As a result, reasoning about branch conditions in each primitive of a complex algorithm can get very tricky.
+\item {\em Formalizing an invariant that links loop in a sequential design with loop in the corresponding pipelined design.} A sequential loop executes its iterations in sequence. The previous loop iteration is complete before the next iteration. A pipelined design, however, overlaps the consecutive iterations of a given design based on pipeline interval. As a result, a loop in the pipelined design executes statements from different iterations of the corresponding sequential loop design. Identifying a provable inductive invariant that links the sequential loop with the pipelined loop is, therefore, a major challenge.
+\item {\em Identifying and certifying underlying primitives in a loop pipelining algorithm.} Certifying a loop pipelining algorithm requires a complex invariant to prove that executing a sequential loop is equivalent to executing a pipelined loop. Identifying the pieces which would make this certification managable is a difficult task. We decompose the algorithm into certifiable primitives.
+We propose that if each primitive maintains an invariant that the execution of the intermediate representation before and after application of the primitive is same, we can prove that the algorithm also maintains the invariant. This approach, however, requires a crisp understanding of the essential steps involved in developing a pipeline loop from a sequential loop. We need to succinctly identify primitives which maintain the given invariant and are also certifiable by theorem proving. Each primitive would require a systematic approach for its proof.
+\item {\em Handle branch conditions.}  Branch conditions dictate the control flow. Presence of conditional and unconditional branch instructions in a loop means that the loop is no longer executed in a straight line. At each primitive, we need to ensure that this control flow is not disturbed or is atleast well accounted for. 
 \item {\em Certifying the complete loop pipelining algorithm based on certified primitives.} Although, the primitives act as backbone for our algorithm, their certification alone does not automatically certify the entire algorithm. We need to identify the conditions under which a primitive is correct and make sure that every application of the primitive in the algorithm has the required assumptions.
 \end{enumerate}
 
 \section {Overview of Our Approach}
-We believe that a certified loop pipelining algorithm can be developed by systematic application of theorem proving techniques. Our approach is based on a realization that in order to generate a pipeline loop design from a sequential loop design, there are three broad steps: (1) identification and removal of data hazards, (2) overlapping the executions of subsequent iterations after the removal of data hazards, and (3) maintaining the correct control flow to preserve the exit condition and state at the time of exit from the loop. 
-% primitives do not identify, they only remove hazards
+Our work shows that a certified loop pipelining algorithm can be developed by systematic application of theorem proving techniques. Our approach is based on a realization that in order to generate a pipeline loop design from a sequential loop design, there are three broad steps: (1) identification and removal of data hazards, (2) overlapping the executions of subsequent iterations after the removal of data hazards, and (3) maintaining the correct control flow to preserve the exit condition and state at the time of exit from the loop. 
 To remove data hazards, reason about branches and to overlap iterations, we have built a framework of succinct provable pipelining primitives.
 Certification of each primitive requires separate careful reasoning in a mechanical theorem prover which we describe later in Chapter~\ref{sec:proof}. Certifying an application of a primitive in the context of the algorithm further involves ensuring that addition of any primitive does not alter the underlying assumptions in the syntax, for example, if we assume there are no return statements in a given representation, applying any primitive should also maintain that assumption. We use these primitives as a backbone to build our loop pipelining algorithm with distinct decomposable components one step at a time. Besides primitives, there are also additional components in the algorithm such as for identifying data hazards and for unrolling the loop.
 Each component satisfies the invariant that the semantic runs of intermediate representations before and after the component are the same.  We elaborate on our approach later in Chapter~\ref{sec:pipelining-algorithm}.
 
-\section{Viability of Our Approach}
+\section{Our Contributions}
 We have defined the syntax and semantics of intermediate design representation in ACL2~\cite{disha-acl214}. We have developed a framework of pipelining primitives essential for all pipelining algorithms. We have formalized and certified all of our primitives in ACL2 theorem prover. We have developed our loop pipelining algorithm from ground up using this framework.
 
 We have also identified a unique invariant which proves that executing overlapped iterations is equivalent to executing sequential iterations. It differs from a typical invariant used for correctness of pipelined
@@ -108,7 +95,7 @@ systems in that it explicitly specifies the correspondence between the
 sequential and pipelined programs at each transition.  We elaborate on our invariant in Chapter~\ref{sec:proof}. 
 We have proved that our algorithm satisfies this invariant.
 
-We have certified the algorithm end-to-end which means that given a well-formed-ccdfg (definition explained later in Chapter~\ref{sec:pipelining-algorithm}, we show that running a sequential loop (with branches to dictate the control flow) is equivalent to running the pipelined loop created using our algorithm. We elaborate on the proof in our proof sketch in Chapter~\ref{sec:proof}. Our proof sketch shows that our primitives are sufficient and essential and that we can build a certified loop pipelining algorithm from ground up using our framework.
+We have certified the algorithm end-to-end which means that given a well-formed-ccdfg (definition explained later in Chapter~\ref{sec:pipelining-algorithm}, we show that running a sequential loop (with branches to dictate the control flow) is equivalent to running the pipelined loop created using our algorithm. We elaborate on the proof in our proof sketch in Chapter~\ref{sec:proof}. Our proof sketch shows that our primitives are sufficient and essential and that we can build a complete certified loop pipelining algorithm from ground up using our framework.
 
 The major contributions of our dissertation are:
 \begin{enumerate}[--]
@@ -131,12 +118,6 @@ operations based on the instruction set.  Loop pipelines
 tend to be deep with a high complexity at each stage, but
 control and forwarding logics are more standardized since
 they are automatically synthesized.  
-%Check: I dnt know what it really means in case of loop pipelines
-% It is hard to adopt SEC
-%techniques for microprocessor pipelines directly for
-%loop pipelining, \eg, lack of a standardized instruction
-%set makes it difficult to identify targets for uninterpreted
-%functions. 
 Furthermore, microprocessor pipeline verification
 is focused on one (hand-crafted) pipeline implementation,
 while our work focuses on verifying an {\em algorithm
@@ -144,7 +125,6 @@ that generates pipelines}.  Abstraction techniques
 such as MAETT~\cite{sh:pipeline} does not apply to our case
 and we have come up with a very different invariant.
 
-% Note to Disha: read paper again
 Our work has analogues with recent work on software
 pipelines.  In particular, Tristan and
 Leroy~\cite{tl:software-popl10} present a verified
@@ -173,7 +153,7 @@ we verify are proprietary to the synthesis tools. Therefore, our approach is
 targeting verification of transformations
 which are closed-source (and exceedingly complex), thus
 making traditional program verification techniques unusable.
-We believe our approach shows a novel way in which theorem
+Our approach shows a novel way in which theorem
 proving can be applied even under those constraints, in
 concert with automated SEC.
 
@@ -187,7 +167,7 @@ discusses our formalization of the intermediate representations used in behavior
 %formalizes intermediate representations used in behavioral synthesis. 
 We also discuss the correctness statement for loop pipelining algorithms.
 Chapter~\ref{sec:challenges} discusses an earlier proposed
-algorithm and the challenges in certifying an algorithm not written with certification in mind.
+algorithm and how and why we have chosen a different approach.
 Chapter~\ref{sec:pipelining-algorithm} discusses our
 framework and a certified loop pipelining algorithm we have developed using the framework. Chapter~\ref{sec:proof} provides a proof sketch for our algorithm. Chapter~\ref{sec:SEC} provides evaluation of robustness and scalability of our algorithm on
-industrial-strength designs. We then conclude with the major contributions of this dissertation and future work in Chapter~\ref{sec:research-plan}.
+industrial-strength designs. We then conclude with the major contributions of this dissertation and next steps which can be done in future in Chapter~\ref{sec:research-plan}.
