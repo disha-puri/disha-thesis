@@ -1,0 +1,266 @@
+\chapter{Related Work and Novelty of Our Approach}
+\label{chapter:related-work}
+
+Besides behaviorally synthesized pipelines, there are mainly two other kinds of pipelines, hardware pipelines and software pipelines. 
+
+\section{Hardware Pipelines and Their Verification}
+
+Hardware pipelining~\cite{Hennessy-2003} is of two types: {\em Instruction pipelining} where there is a continuous, 
+overlapped movement of instructions to the processor or {\em Arithmetic pipelining} where 
+different stages of an arithmetic operation are handled along the stages of a pipeline.
+An Instruction pipeline has five stages: Fetch, Decode, Execute, Memory Access 
+and Write Back. Without any pipelining, 
+a processor gets the first instruction from memory, undergoes arithmetic operations 
+and then sends it back to memory before starting any new instruction. While pipeline is 
+fetching the instruction, Arithmetic and Logic Unit (ALU) of processor is idle. 
+Pipelining allows the fetching of instructions to be continuous. The next 
+instructions can be fetched even while the 
+processor is performing arithmetic operations, holding them in a buffer close 
+to the processor until each instruction operation can be performed. 
+It reduces the processing time. However, there may be
+hardware conflicts (structural hazards), data dependencies (data hazards) or hazards that come from 
+branch, jump and other control flow changes (control hazards). These prevent the pipeline from
+running at full speed. These issues can and are successfully dealt with. But,
+detecting and avoiding these hazards leads to a considerable increase in hardware complexity. 
+
+There has been a significant amount of work in formal or semi-formal verification of processor (hardware) pipelines. 
+A theorem prover, PVS~\cite{pvs} 
+was successfully used for verification of a simple pipelined processor~\cite{Cyrluk94}. Sawada and Hunt~\cite{sh:pipeline} 
+presented a technique that models the trace of executed 
+instructions using a table-based representation called a MAETT. These approaches require involvement 
+of user to a great degree, especially in control dominated designs. Hosabettu~\cite{Hosabettu2000} proposed to build the proof of correctness 
+of pipelined microprocessors by constructing the abstraction function 
+using completion functions. Burch and Dill~\cite{bd:pipeline} presented a technique to verify the 
+correctness of the implementation model of a pipelined processor 
+against its instruction-set architecture (ISA) model based on 
+quantifier-free logic of equality with uninterpreted functions. 
+The technique has been extended to handle more complex pipelined
+architectures by several researchers~\cite{Skakkebæk1998,Velev2000,VelevBryant2000, pm:pipelines, velev05,sud-2010}. 
+%The approach~\cite{VelevBryant2000}focuses on effi-
+%ciently checking the commutative condition for complex microarchitectures by
+%reducing the problem to checking equivalence of two terms in a logic with equality,
+%and uninterpreted function symbols. 
+ARM2 pipelined processor was verified~\cite{Huggins1998} using abstract state machine. Levitt and Olukotun~\cite{levitt1997} created a verification method to merge repeatedly last two stages of a pipeline into one, called unpipelining, to ultimately create a sequential verision. 
+Aagaard et al.~\cite{Aagaard2001} presented a framework
+for microprocessor correctness statements about safety that is independent
+of implementation representation. Out of order pipelines have been verified by combining model checking for the verification 
+of the pipeline control, and theorem proving for the verification of the pipeline functionality~\cite{Jacobi2002} . 
+
+All the above techniques attempt to formally verify the implementation of
+pipelined processors by comparing the pipelined implementation with its sequential
+(ISA) specification model, or by deriving the sequential model from
+the implementation. There are significant differences in goals
+and techniques between these efforts and ours.
+Microprocessor pipelines include optimized (hand-crafted)
+control and forwarding logics, but have a static set of
+operations based on the instruction set. Behaviorally synthesized 
+loop pipelines tend to be deep with a high complexity at each stage, but
+control and forwarding logics are more standardized since
+they are automatically synthesized. 
+Furthermore, microprocessor pipeline verification
+is focused on one (hand-crafted) pipeline implementation,
+while our work focuses on verifying an {\em algorithm
+that generates pipelines}. As explained earlier in Chapter 6  that our invariant is very different from a typical invariant
+used in the verification of pipelined machines (\eg, for
+microprocessor pipelines). We make explicit the
+correspondence with the sequential execution. The key
+requirement from a pipeline invariant, \viz, hazard freedom,
+is left implicit and arises indirectly as a proof obligation
+for invariance of this predicate. 
+ 
+\section{Software Pipelines and Their Verification}
+Software pipelining is a form of out of order execution. It is performed by compiler rather than a processor. 
+Behaviorally synthesized loop pipelines are similar in reasoning to software loop pipelines except that since
+behavioral synthesis is automatic, it is much more streamlined than software pipelines. 
+
+In~\cite{Leviathan:2002}, Pnueli and Leviathan present a validator to verify software 
+pipeline in IA-64 architecture~\cite{Doshi:1999} (Intel's 
+architecture specifically designed with keeping complexities of software pipelining in mind and to provide additional 
+support for it). It uses rotating register file and predicate registers for its verification. 
+Using symbolic evaluation, the validator generates a set of verification conditions 
+that are discharged by a theorem prover. Kundu et al.~\cite{Kundu:2009} 
+use parameterized translation validation to verify software pipelines. They use 
+code motion (rewrite of original loop by validating each rewrite step).
+%Goldberg et al.~\cite{Goldberg} use run-time checks to verify behaviors 
+%of pipelined loop but they did not verify full semantic preservation.
+Our understanding of hazards and reasoning behind pipelining algorithm 
+is very closely related to recent work on
+verification of software pipelines.  In particular, Tristan
+and Leroy~\cite{tl:software-popl10} present a verified
+translation validator for software loop pipelines.  The loop
+pipelines in behavioral synthesis considered in this paper
+are close in structure to software loop pipelines, although
+our formalization (\eg, CCDFG) has different semantics from
+the Control Flow Graphs they use, reflecting the difference
+between eventual targets of compilation (\viz, hardware
+vs. software).  However, the fundamental difference is in
+the approach taken to actually certify the pipelines.
+Tristan and Leroy's approach decomposes the certification
+problem into two parts, a ``dynamic'' part that is certified
+on a case-by-case basis  and a ``static'' part that is
+certified in the Coq theorem prover~\cite{coq} once and for all.  The
+theorem proven by Coq is informally paraphrased as follows:
+
+\begin{quote}
+Suppose the pipelining algorithm generates a pipeline
+${\cal{P}}$ from a sequential design ${\cal{S}}$.  Suppose
+symbolic simulation of ${\cal{S}}$ and ${\cal{P}}$ verifies
+certain ``dynamic'' verification conditions (VCs).  Then
+${\cal{S}}$ and ${\cal{P}}$ are indeed semantically
+equivalent.
+\end{quote}
+
+\noindent
+Thus for any pipeline instance ${\cal{P}}$ generated by
+their algorithm, symbolic simulation is executed between
+${\cal{P}}$ and ${\cal{S}}$ to certify that ${\cal{P}}$ is
+indeed a correct pipelined implementation of ${\cal{S}}$.
+The dynamic VCs checked by symbolic simulation essentially
+certify that the pipeline generation did not overlook any
+hazards.
+
+This is where our work differs from theirs.  Our work is
+expected to provide a single theorem certifying the
+correctness of the reference pipelined implementation,
+without requiring further runtime hazard check.
+Furthermore, their correspondence theorem relates the
+pipelined implementation with a sequential design with a
+(bounded) unrolled loop, while our approach certifies the
+correspondence between the actual Control Flow Graph (CFG)
+and the pipelined implementation.  Indeed, Tristan and Leroy
+remark that the mechanization of the correspondence between
+the CFG and unrolled loop is ``infuriatingly difficult''.
+We speculate this is so because they focus on verifying the
+correspondence between the unrolled loop and the pipeline.
+In our experience, attempting the formal correspondence between the unrolled
+sequential loop and pipelined design is indeed difficult since
+there is no formal way to connect to back edge of the loop
+with any of the edges in the pipeline.  We believe that
+reconciling this problem and developing a fully certified
+pipeline generation algorithm would require backtracking
+from the correspondence with an unrolled loop (and hence
+translation validation) to a more complex invariant like
+ours.  Of course we must note that we can ``afford'' to
+develop a fully certified algorithm in our approach since
+the pipelines are simpler
+(cf. Chapter~\ref{sec:formalization}); achieving this for
+arbitrary software pipeline may require further more subtle
+invariants.
+
+\section{Verification of Behaviorally synthesized designs}
+
+A lot of research has been done in verification of behaviorally synthesized designs. Matsumoto et al.~\cite{Matsumoto} compare two similar C-based hardware descriptions. 
+To verify large C descriptions efficiently, they rely on scanning for textual differences 
+to reduce problem complexity, then enumerate execution paths and 
+apply symbolic simulation and word-level uninterpreted functions. 
+Bounded model checking is used if the software is abritrary. 
+If the software is arbitrary high-level code, then full formal verification
+is undecidable, but bounded-length verification is possible using symbolic execution.
+Kroening, Clarke and Yorav~\cite{Kroening1} apply BMC (Bounded Model
+Checking) to both a circuit and a C program. Their tool covers arbitrary designs. However,
+this method shows only the absence of inconsistencies up to a given bound.
+Furthermore, the number of paths is very high. 
+In order to avoid the state space explosion problem of full formal verification,
+Jain, Kroening, and Clarke~\cite{Clarke:2005} introduce 
+predicate abstraction for hardware implementations
+against software specifications. This approach can greatly reduce the
+size of the state space and verify certain properties for large circuits. The strength
+of that work is powerful abstraction techniques that reduce the complexity of the
+software specifications. However, such abstraction techniques can be too coarse, and
+finding good predicates is highly challenging. 
+
+Initially, high level synthesis verification focused on behavioral VHDL~\cite{19} and 
+translation from VHDL to dependence flow graphs~\cite{21} was verified by structural induction
+based on CSP semantics~\cite{22}. 
+%Koelbl et al. (need to add citation) 
+%provide a tutorial introduction on methods of comparing high-level designs with RTL. 
+%Chauhan et al. (need to add citation) propose a technique for SEC between non-cycle-accurate designs by constructing a 
+%pair of normalized cycle-accurate designs from the original designs. 
+Bisimulation has been proposed as a solution to validate behaviorally synthesized designs~\cite{kundu2008}.  
+Their approach is implemented for the Spark synthesis tool~\cite{spark}.
+However, their approach is not scalable and we handle more complex industrial strength designs. 
+%they do not provide a uniform design representation
+%across different synthesis tools or implement optimizations
+%necessary for scaling to design sizes that we handle.
+Recently, HOL~\cite{23}has been used to synthesize hardware from formal
+languages automatically.  A certified hardware
+synthesis from programs in Esterel, a synchronous design language, has been also
+been developed~\cite{24} in which a variant of Esterel was embedded in HOL.
+%Dave [25] provides a comprehensive bibliography of compiler verification. One of
+%the earliest work on compiler verification was the Piton project [26], which verified a
+%simple assembly language compiler. Compiler certification forms a critical component
+%of the Verisoft project [27], aiming at correctness of implementations of computing systems
+%with both hardware and software components. The Verifix [28] and CompCert [29]
+%projects have explored a general framework for certification of compilers for various C
+%subsets [30, 31]. There has also been work on a verifying compiler, where each instance
+%of a transformation generates a proof obligation discharged by a theorem prover [32].
+
+
+There has been much research on sequential equivalence checking (SEC) between
+RTL and gate-level hardware designs~\cite{33, 34}. Research has also be done on combinational
+equivalence checking between high-level designs in software-like languages (e.g.,
+SystemC) and RTL-level designs~\cite{hu}. There has also been effort for SEC between software
+specifications and hardware implementations~\cite{36} .
+
+%[22, 23, 61]. 
+
+%Edmund et al.[8] present a way of using bounded model checking to verify the consistency
+%of behaviours for C and Verilog programs. Given an ANSI-C program and a
+%Verilog circuit, both are translated into a formula similar to an FSMD that represents
+%behavioural consistency. The formula is then checked using SAT. Note that the ANSI-C%
+%program and Verilog circuit have no HLS connections. In other words, to verify a circuit,
+%one has to manually develop a specifically formatted C program that is functionally
+%equivalent to the Verilog circuit.
+
+\section{Use of Theorem Provers in Hardware Verification}
+Thorem provers are widely used for hardware verification. 
+HOL theorem prover~\cite{hol} has been used in 
+several well-documented projects~\cite{cohn,graham}.
+ACL2 is also used a lot in hardware 
+verification~\cite{Russinoff,car2,car,Hardin,ray-abstracting,ray-connecting,ray-certification}. 
+Our project is however somewhat different from the
+traditional applications of theorem provers. 
+First, since an over-arching goal is to exploit automatic
+decision procedures, we use theorem proving primarily to
+complement automated tools. Second, we eschew theorem
+proving on inherently complex or low-level implementations.
+Third, interactive theorem proving is acceptable for
+one-time use, in certification of a transformation, 
+but not as part of a methodology that
+requires ongoing use in certification of each design. The
+constraints are imposed by the the environment in which we
+envision our framework being deployed: it may not be
+possible to have a dedicated team of experts doing theorem
+proving as full-time jobs. Finally, the loop pipelining transformation
+we verify are proprietary to the synthesis tools. Therefore, our approach is
+targeting verification of transformations
+which are closed-source (and exceedingly complex), thus
+making traditional program verification techniques unusable.
+Our approach shows a novel way in which theorem
+proving can be applied even under those constraints, in
+concert with automated SEC.
+
+In addition to technical contributions, we see our work as
+providing an important methodological contribution enabling
+use of theorem proving in situations where one needs to
+certify the result of an implementation on which theorem
+proving cannot be directly applied either because it is
+closed-source or because it is highly complex: (1)~create a
+reference implementation, perhaps using as much information
+as available from the actual implementation, in our case
+information about pipeline intervals, (2)~certify this
+simpler reference implementation with theorem proving, and
+(3)~develop an SEC framework to compare the result of the
+reference implementation with that of the actual
+implementation.  In addition to making theorem proving
+applicable on industrial flows without requiring us to
+certify industial implementations with their full
+complexity, this approach permits adjusting the algorithm
+(within limits) to suit mechanical reasoning while still
+affording comparison with actual synthesized artifacts.  We
+have made liberal use of this ``luxury'', \eg, we have
+been continually redefining our superstep construction function
+to facilitate proof of key structural lemmas of the
+invariant before settling on the final version.  We believe similar approach is applicable in
+other contexts and may provide effective use of theorem
+proving within industrial verification flows.

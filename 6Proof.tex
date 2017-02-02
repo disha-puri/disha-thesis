@@ -1,53 +1,99 @@
 \chapter{Proof Sketch}
 \label{sec:proof}
 
-Certification of our loop pipelining algorithm naturally requires a certification of each of our primitives.
-In addition, we need to ensure that every time a primitive needs to be applied, the conditions
-under which the primitive can be applied are maintained. We discuss both aspects below.
+Certification of our loop pipelining algorithm naturally requires a certification of 
+each of our primitives. In addition, we need to ensure that every time a primitive 
+needs to be applied, the conditions under which the primitive can be applied are 
+maintained. We discuss both aspects below.
 
 \section{Correctness of Primitives}
-We must prove that applying a particular primitive is correct, {\em i.e.},
-maintaining a certain invariant. This is proven without
+We must prove that applying a particular primitive is correct, 
+{\em i.e.}, maintaining a certain invariant. This is proven without
 considering how it is applied in the context of a pipeline
-synthesis algorithm. We give an outline of the proof to justify that the primitives are correct.
+synthesis algorithm. We give an outline of the proof to justify 
+that the primitives are correct.
+  
+\begin{figure}[H]
+\begin{center}
+\includegraphics[height=2.35in]{fig-proposal/phi-removal-transformation-proof}
+\end{center}
+\caption{Correctness of $\phi$-elimination primitive}
+\label{fig:phi-primitive-proof}
+\end{figure}
 
 {\bf $\phi$-elimination primitive:} We prove that the execution
   of a $\phi$-construct is the same as executing the corresponding
-  assignment statements. Note that this is not trivial since
-  given a microstep in a scheduling step containing the
-  $\phi$-construct, the algorithm has to use static analysis
-  to deduce the previous scheduling step.
-
+  assignment statements assuming that we already know the previous basic block for the $\phi$-construct.
+  In essence, we prove that the algorithm correctly resolves the $\phi$ to create 
+  multiple assignment statements. We induct along the length of each sub-microstep of $\phi$-construct and
+  relate it to one corresponding assignment statement as shown in Figure~\ref{fig:phi-primitive-proof}. 
+  
+  
+   
+\begin{figure}[H]
+\begin{center}
+\includegraphics[height=3.5in]{fig-proposal/shadow-reg-primitive}
+\end{center}
+\caption{Shadow Register Primitive}
+\label{fig:primitives2}
+\end{figure}
+ 
 {\bf Shadow register primitive:} We prove that adding
-  a shadow register microstep $x\_reg = x$ does not change the
-  value of any variable except the shadow variable. Also, we
-  prove that now since value of $x\_reg$ would be equal to value
-  of $x$, executing a statement which reads $x$ has the same
+  a shadow register microstep, $a\_reg = a'$ (as shown in Figure~\ref{fig:primitives2}),
+  does not change the value of any variable in the state except the shadow variable. 
+  In essence, we prove
+  that if a variable is not written in a microstep, then its value in the state before and after executing
+  that microstep is same. Also, we prove that after executing the shadow register microstep,
+  value of $a\_reg$ in the state is equal to value of $a'$. Furthermore, since now
+  the value of $a\_reg$ is equal to value
+  of $a'$, we prove that executing a statement which reads $a'$ has the same
   effect on the state as executing a statement which reads
-  $x\_reg$ till the next write of $x$. We
-  determine the variables read and written in a statement by
-  analyzing the execution semantics. Note that $x\_reg$ has to be a new variable which
+  $a\_reg$ till the next write of $a'$. This needs to be done for all types of
+  statements {\em e.g.,} assignment statements (with different types of 
+  operations like load, add, mul, getelementptr {\em e.t.c.}), 
+  store statement, branch statement etc. We determine the variables read and 
+  written in a statement by analyzing the statements. 
+  Note that $a\_reg$ is a new variable which
   is neither written nor read in the given statements.
 
-{\bf Interchange primitive:} We prove that we can interchange two scheduling steps which do not have
-  read-write conflict. Given an initial state, the state after
-  executing scheduling steps $m$ and $n$ is the same as the state after
+ 
+  {\bf Interchange primitive:} We prove that we can interchange any two adjacent microsteps
+ (excluding branch microsteps) which do not have read-write conflict. We prove that given an initial state, 
+ the state after executing microsteps $m$ and $n$ is the same as the state after
   executing $n$ then $m$ if $m$ and $n$ have no read-write
-  conflict. Suppose, the state after
-  executing $m$ and $n$ is $s_1$ and that after executing $n$ and
-  $m$ is $s_2$. We prove that for any variable $x$, its
+  conflict. Suppose, the state after executing $m$ and $n$ is $s_1$ and 
+  that after executing $n$ and $m$ is $s_2$. We prove that for any variable $x$, its
   value remains same in $s_1$ and $s_2$. After normalizing
   the states, we can prove that $s_1$ is equal to $s_2$, i.e.,
-  the states are the same after executing the two scheduling steps in
+  the states are the same after executing the two microsteps in
   a sequence or in an interchanged order. Again, reasoning about read and
   write of statements involves reasoning about execution
   semantics of all types of microsteps present in the
   language which is not trivial.
 
-{\bf Branch primitive:} The proof of the primitive follows from the definition of branch primtive itself as explained in Section 5. This proof would involve semantically analyzing the branch statements and induction on the steps of the CCDFG. 
 
-{\bf Superstep construction primitive:} This primitive is proved
-using the interchange primitive and our key invariant described in detail below.
+
+
+{\bf Branch primitive:} We prove that executing $S$ $k$ times such that it exits 
+in the $(k+1)$ st iteration is same as executing $S_{loop}$ $k$ times followed by $S_{preExit}$. 
+(c.f Figure~\ref{fig:primitives3}). We need to define a notion of a well-formed-flow to ensure that we can show that the 
+branch does not exit in the first $k$ iterations. We also need a way to track the backedge along the 
+unconditional branch and ensure that it points back to the beginning of loop $S$.
+  
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[height=3.25in]{fig-proposal/conditional-branch-primitive}
+\end{center}
+\caption{Branch Primitive}
+\label{fig:primitives3}
+\end{figure} 
+ 
+{\bf Superstep construction primitive:} This primitive is for overlapping iterations while 
+maintaining data and control dependencies. It is built on interchange primitive but while interchange primitive
+handles only two adjacent microsteps, superstep construction moves around scheduling steps with multiple microsteps. 
+The interchange primitive is extended by non-trivial induction along the length of the scheduling steps to achieve the desired result. 
+Superstep construction primitive is proved using the 
+interchange primitive and our key invariant described in detail below. 
 
 \section{Key Invariant on Correspondence Between Back-edges of Sequential and Pipelined Loops}
  Our key invariant defines a ``correspondence relation''
@@ -55,12 +101,22 @@ between the back-edges of the sequential and pipelined CCDFGs.
 The relation can be informally paraphrased as
 follows~\cite{disha-itp14}.
 
+\begin{figure}[t!]
+\begin{center}
+\begin{tabular}{c}
+\includegraphics[width=5.5in]{fig-proposal/algorithm-after-superstep-construction}
+\end{tabular}
+\end{center}
+\caption{Superstep Construction}
+\label{fig:algo3-3}
+\end{figure}
+
 \begin{quote}
 Let $S$ be a sequential loop and $P$ be the pipelined loop
 generated from our algorithm. The pipelined loop after superstep construction
 consists of
 three stages before $S_{preExit}$ as depicted in
-Figure~\ref{fig:algo3}(b): prologue $P_{pre}$, full stage
+Figure~\ref{fig:algo3-3}: prologue $P_{pre}$, full stage
 $P_{loop}$, and epilogue $P_{post}$.  Let $s_l$ be any state of $P$
 poised to execute $P_{loop}$, and let $k$ be any number such that
 the loop of $P$ is not exited in $k$ iterations from $s_l$.
@@ -97,27 +153,10 @@ an invariant, and that its invariance is sufficient to imply
 the desired correctness theorem.  Here we give a sense of
 our envisioned proof.
 
-Our invariant is defined specifically to make the proof
-sufficiency straightforward.
-Equivalence of CCDFG states of $P$ and $S$ follows from the
-invariant by noting that the epilogue $P_{post}$ exactly
-constitutes the incomplete scheduling steps of $S$ specified
-by the invariant
-(cf. Figure~\ref{fig:invariant-implies-correctness}).
-
-\begin{figure}[t!]
-\begin{center}
-\includegraphics[height=2.2in]{fig-proposal/invariant-implies-correctness}
-\end{center}
-\caption{Correctness of invariant implies the correctness statement}
-\label{fig:invariant-implies-correctness}
-\end{figure}
-
 The proof of invariance of this predicate is, of course, the
 main ``work horse'' in this exercise.  The proof depends on
 our interchange primitive which in turn is based on a fundamental idea for pipelining,
-\viz, commutability of
-independent instructions.
+\viz, commutability of independent instructions.
 
 \begin{quote}
 Suppose that the
@@ -128,7 +167,7 @@ followed by $a$.
 \end{quote}
 
 If we view the scheduling steps in
-Figure~\ref{fig:high-level-synthesis} as arranged in a
+Figure~\ref{fig:invariant-base-case} as arranged in a
 matrix, then the sequential execution proceeds column-wise
 along the matrix while the pipelined execution proceeds
 row-wise.  Thus the core proof obligation involves the
@@ -146,24 +185,17 @@ following two proof requirements.
 
 \begin{figure}[t!]
 \begin{center}
-\includegraphics[width=3.5in]{fig-proposal/invariant-base-case}
+\includegraphics[width=4.25in]{fig-proposal/invariant-base-case}
 \end{center}
-\caption{Invariant base case where $k = 1$, executing
-  pipeline prologue and one pipeline full stage is the same
-  as executing $S_{pre}$ followed by a sequence of partially
-  completed sequential loop CCDFG.}
+\caption{Invariant base case where k = 1}
 \label{fig:invariant-base-case}
 \end{figure}
 
 \begin{figure}[t!]
 \begin{center}
-\includegraphics[height=2.2in]{fig-proposal/invariant-inductive-step}
+\includegraphics[width=4.25in]{fig-proposal/invariant-inductive-step}
 \end{center}
-\caption{Assuming that
-  invariant is true for $k$ steps, executing one pipeline full
-  stage on both sides gives us $(k + 1)$ iterations of
-  sequantial loop CCDFG followed by partially completed
-  sequences as expected.}
+\caption{Invariant Inductive Step}
 \label{fig:invariant-inductive-step}
 \end{figure}
 
@@ -174,11 +206,34 @@ pipelined loop is $1$) and inductive step (assume the
 invariant holds for $k$ iterations of the pipeline and prove
 that it holds for $(k+ 1)$ iterations).  Their usage is
 pictorially shown in Figures~\ref{fig:invariant-base-case}
-and~\ref{fig:invariant-inductive-step}.  For
-the base case, we commute operations in the loop prologue of
+and~\ref{fig:invariant-inductive-step}. For invariant base case where $k$ is
+equal to $1$, we commute operations in the loop prologue of
 the pipeline (which corresponds to the first iteration after
-unrolling) with the loop body, while for the inductive step
-we work with two consecutive iterations of the loop.
+unrolling) with the loop body. We prove that executing
+  pipeline prologue and one pipeline full stage is the same
+  as executing $S_{pre}$ followed by a sequence of partially
+  completed sequential loop CCDFG. For the inductive step
+we work with two consecutive iterations of the loop. Assuming that
+  invariant is true for $k$ steps, we prove that executing one pipeline full
+  stage on both sides gives us $(k + 1)$ iterations of
+  sequantial loop CCDFG followed by partially completed
+  sequences as expected.
+
+Our invariant is defined specifically to make the proof
+sufficiency straightforward.
+Equivalence of CCDFG states of $P$ and $S$ follows from the
+invariant by noting that the epilogue $P_{post}$ exactly
+constitutes the incomplete scheduling steps of $S$ specified
+by the invariant
+(cf. Figure~\ref{fig:invariant-implies-correctness}).
+
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[width=5in]{fig-proposal/invariant-implies-correctness}
+\end{center}
+\caption{Correctness of invariant implies the correctness statement}
+\label{fig:invariant-implies-correctness}
+\end{figure}
 
 Our invariant is very different from a typical invariant
 used in the verification of pipelined machines (\eg, for
@@ -212,14 +267,13 @@ explicitly capture the state of the executions that have
 been partially completed during each iteration of the
 pipeline ({\em ie}, each traversal of the back edge).
 
-
 \section{Correctness of Our Algorithm}
 
 The algorithm is essentially built from ground-up using primitives
-as shown in Section~\ref{sec:pipelining-algorithm}. 
-However, apart from proving correctness of each primitive and our key invariant,
-we also need to ensure that the primitive is applied by our
-algorithm properly, {\em i.e.}, the environment
+as shown in Chapter~\ref{sec:pipelining-algorithm}. However, 
+apart from proving correctness of each primitive and our key 
+invariant, we also need to ensure that the primitive is applied by 
+our algorithm properly, {\em i.e.}, the environment
 assumptions on which the {\bf correctness of primitive}
 depends are maintained appropriately by the algorithm at
 the point where the primitive is applied. 
@@ -234,10 +288,9 @@ condition required for the correctness of the primitive.
 Note that verifying this requires an inductive proof
 relating the states of the CCDFG $C'$ generated after the
 application of the transformation with the original CCDFG
-$C$.  The induction is on the lengths of execution of $C$
-and $C'$.  Note that the induction is non-trivial because
+$C$. Note that the induction is non-trivial because
 transformations have significant ``global'' effect on a
-CCDFG.  These include one or more of the following:
+CCDFG. These include one or more of the following:
 
 \begin{enumerate}
 \item Replacing one microstep of $C$ with more than one
@@ -247,9 +300,125 @@ CCDFG.  These include one or more of the following:
 \item Changing the variable being read or written in several
   microsteps ({\em e.g.}, shadow register)
 \end{enumerate}
-The upshot is that an inductive theorem relating $C$ and
-$C'$ must be strong enough to comprehend the global effects.
-For instance, an inductive statement showing the
+
+The final theorem can be written in ACL2 as 
+\small
+\begin{verbatim}
+(defthm run-random-final-theorem
+ (implies (and (well-formed-ccdfg c)
+               (well-formed-flow-ccdfg bb sub-bb loc c 
+                                       ccdfg-state prev no_seq_steps)
+               (equal (list pre loop post) (final-pp c prev interval m)))
+               (not (equal (final-pp c prev interval m) "error"))
+     (equal (get-final-real-state 
+                  (run-ccdfg-random 0 0 0 c ccdfg-state prev no_seq_steps))
+            (get-final-real-state 
+                  (run-ccdfg-random 0 0 0 (append pre loop post) 
+                                              ccdfg-state prev no_pp_steps)))))
+\end{verbatim}
+\normalsize
+
+The theorem involves several ACL2 functions, \eg, {\tt
+well-formed-ccdfg}, \\
+{\tt run-ccdfg-random}, etc. Please refer 
+our proof scripts for details. Here, we provide a quick overview 
+of some of the critical functions in the theorem
+below.  
+
+\noindent
+$c$ here refers to a sequential loop. We have defined a function {\tt well-formed-ccdfg} 
+which imposes restrictions on the structure of the types of loops which can be pipelined. It ensures 
+that we have only one conditional branch in $c$ which either points to the next microstep or points to {\tt Exit} somewhere outside $c$. 
+It also ensures that we have only one unconditional branch at the end of the loop which points back to the 
+beginning of the loop. Moreover, there is only one relevant $\phi$-branch
+which is required to handle variables which change value depending on whether previous basic block is outside the loop
+or inside. It is required to handle loop carried dependencies as explained before. 
+Also, there is only one place of entry and one place of exit in the loop. 
+Note that these restrictions are seen in behavioral synthesis tools as well since branches inside/outside the 
+loop have already been taken care of before this step using other compiler and scheduling transformations. 
+When we reach the pipelining stage, 
+we have a {\tt well-defined-ccdfg} loop structure dictated by one conditional and one unconditional branch.
+
+We have also defined a function {\tt well\--formed\--flow\--ccdfg}, which states that starting from the initial basic block {\tt bb}, 
+sub-basic-block {\tt sub-bb} and location {\tt loc} of $(0,0,0)$ and an initial state {\tt ccdfg\--state}, if we encounter a branch within $m$ number of steps, then we do not exit {i.e.}, the exit condition variable is not true.  Also, it ensures that the next statement after branch is the next mircostep in order such that we execute the microsteps in order for $m$ number of steps.
+
+The function {\tt run-ccdfg-random} executes a CCDFG starting from the initial basic block {\tt bb}, 
+sub-basic-block {\tt sub-bb} and location {\tt loc} of $(0,0,0)$ and an initial state {\tt ccdfg\--state}.
+
+The function {\tt final-pp} applies the pipeline generation algorithm to create the  
+list of {\tt pre}, {\tt loop} and {\tt post} as expected. 
+
+Finally, the function {\tt get-final-real-state} removes from the
+CCDFG state, all auxiliary variables introduced by
+the pipeline generation algorithm itself, leaving only the
+variables that correspond to the sequential
+CCDFG. Recall that the algorithm has to introduce new variables
+  in order to eliminate hazards.  One consequence of this is
+  that the new variables so introduced must not conflict
+  with any variable subsequently used in the CCDFG.  Since
+  we do not have a way to ensure generation of fresh
+  variables, this constraint has to be imposed in the
+  hypothesis. Also, this function normalizes ``sorts'' the
+components in a CCDFG state in a normal form so that the
+sequential and pipelined CCDFG states can be compared with
+{\tt equal}. 
+ 
+Following is an English paraphrase of the theorem.
+  
+\begin{quote}  
+If the pipeline generation succeeds without error,
+executing the pipelined CCDFG (a combination of $pre$, $loop$ and $post$) for $no\_pp\_steps$
+generates the same state of the relevant variables as executing the sequential CCDFG $c$ for $no\_seq\_steps$.
+
+\small
+\begin{equation}
+\begin{split}
+no\_seq\_steps &= len S_{1} + (len S * (\ceil{\frac{m}{interval}} - 1)) + len S_{preExit} \\
+no\_pp\_steps &= len P_{pre} + (len P_{loop} * k) + len P_{post}
+\end{split}
+\end{equation}
+
+%\ceil{n / interval}) 
+
+%no\_pp\_steps &= (len P_{pre}) + ((len P_{loop}) * k) + (len P_{post})
+\normalsize
+
+\end{quote}
+
+We can take each stage one by one to understand the complexity involved in 
+verifying the algorithm as a whole, over and above the verification of 
+individual primitives.
+
+\begin{enumerate}
+\item \textbf{Remove Branches}: In the $Remove Branches$ stage, which is the first stage of pipelining algorithm, we have to create a correspondence between randomly executing a CCDFG with branches using basic-block, sub-basic-block and location with executing a CCDFG in sequence without a conditional and unconditional branch as shown in Figure~\ref{fig:proof-remove-branches}. This is similar to branch primitive, but since we have a non-streamlined run on one side and a steamlined sequential run on the other side, there are theorems involved with finding the next microstep randomly and proving that it is same as the next microstep in streamlined order. We also need to prove that the applicaton of branch primitive is correct. After this step and for all the subsequent steps, we need to show that there are no relevant branches in CCDFG.
+                                             
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[height=3.5in]{fig-proposal/proof-remove-branches}
+\end{center}
+\caption{Proof Sketch for Remove Branches Stage}
+\label{fig:proof-remove-branches}
+\end{figure}
+
+\item \textbf{Unroll Loop Once}: This step unrolls the loop by one as explained before. The proof uses induction along the number of iterations.
+
+\item \textbf{$\phi$-to-assign}: In the $\phi$-to-assign stage, we replace one microstep of $C$ with more than one microsteps in $C'$
+as shown in Figure~\ref{fig:proof-after-phi}. 
+In addition to inductively reasoning about application of a primitive in entire CCDFG, we also have to ensure
+that addition of new microsteps does not affect the basic structure of the CCDFG. These well-formed-conditions need to be maintained at each step to ensure that the primitives can be applied.
+
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=5.5in]{fig-proposal/proof-after-phi}
+\end{center}
+\caption{Proof Sketch for $\phi$-to-assign Step}
+\label{fig:proof-after-phi}
+\end{figure}
+
+The upshot is that an inductive theorem relating $C$ and $C'$ must be strong enough to 
+comprehend the global effects. For instance, an inductive statement showing the
 correctness of $\phi$-elimination must account for the fact
 that the number of microsteps of $C$ is different from that
 of $C'$.  Thus an execution of $C$ for $n$ microsteps must
@@ -263,40 +432,47 @@ to be provable by induction.  Furthermore the functions so
 introduced for static symbolic execution must themselves be
 proven correct.
 
-We can take each stage one by one to understand the complexity involved in 
-verifying the algorithm as a whole over and above the verification of 
-individual primitives. \textbf{Discusss with Sandip Sir, whether these things are worth mentioning and then elaborate}
 
-In the $AddBranches$ stage, which is the first stage of pipelining algorithm, we 
-have to create a correspondence between randomly executing a CCDFG with branches 
-using basic-block, sub-basic-block and location with executing a CCDFG without 
-a conditional and unconditional branch. This is similar to conditional branch primitive, but since 
-we have a random run on one side and a steamlined sequential run on the other side, 
-there are theorems involved with finding the next step randomly. 
 
-After this step and for all the subsequent steps, we need to show that there are no relevant branches in CCDFG.
-
-The $\phi-to-assign$ stage, we replace one microstep of $C$ with more than one microsteps in $C'$. 
-In addition to inductively reasoning about application of a primitive in entire CCDFG, we also have to ensure
-that addition of new microsteps does not affect the basic structure of the CCDFG. These well-formed-conditions
-need to be maintained at each step to ensure that the primitives can be applied and they are not trivial.
-
-The data propagation stage, the first step involves identifying the appropriate statements that cause conflict 
-and applying interchange primitive. The second step involves moving a statement into the previous iteration. 
-In a pre, loop and post, it means removing the statement from beginning of loop and adding it to end of loop. 
-Also, statement is adding in end of pre and removed 
-from post. {\textbf: Note to Disha: take a look again at this, explain induction with help of diagram if required}.  
+\item {\textbf {Data Propagation}} : In the data propagation stage, the first step involves identifying 
+the appropriate statements that cause conflict and applying interchange primitive multiple times 
+to move the microstep to the beginning of the loop. We need to make sure that the conditions under which
+interchange primitive can be further applied are maintained after each application.
+ 
+The second step involves moving the microstep into the previous iteration. 
+It requies removing the microstep, referred as $mstep$ from beginning of $S_{loop}$ and adding it to end of $S_{loop}$. 
+Also, $mstep$ is added in $S_{pre}$ and removed 
+from $S_{preExit}$. The proof of this step requires non-trivial induction as explained in Figures~\ref{fig:proof-after-data-propagation-basecase} and ~\ref{fig:proof-after-inductive-step}. 
 These stages need to be
 repeated for as many variables as are in conflict. 
 
-In $Shadow-register$ stage, we need to reason about read and write of variables across a number of microsteps. 
-This step needs to be repeated as well for multiple variables as required. In this case, however, the reasoning is 
-very complicated. Since, after executing shadow register once, we can no longer say that the state in CCDFG-state1 
-is same as that of CCDFG-state2, only the real variables have same value. {\textbf: Note to Disha:  elaborate}
+\item \textbf{Shadow-register}: Recall that shadow register step adds many more new statements to assign temporary values to 
+new shadow variables. The addition of new microsteps means that in addition to inductively reasoning about application of a primitive in entire CCDFG, we also have to ensure that basic structure of the CCDFG is maintained. Moreover, we need to reason about read and write of 
+variables across a number of microsteps. The proof is analogous to the proof of shadow-register primitive. However, the primitive is applied multiple times based on the variabes which are causing conflict. This gets tricky as after application of one primitive, there are new variables introduced and we can only claim that the relevant variables have same value.
 
-In the $Superstep-construction$ stage
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[width=5.5in]{fig-proposal/proof-after-data-propagation-basecase}
+\end{center}
+\caption{Proof Sketch for Data Propagation Step Base Case}
+\label{fig:proof-after-data-propagation-basecase}
+\end{figure}
 
-In the $AddBranches back$ stage
+\clearpage
+\begin{sidewaysfigure}[t!]
+\begin{center}
+\includegraphics[height=4in]{fig-proposal/proof-after-inductive-step}
+\end{center}
+\caption{Proof Sketch for Data Propagation Step}
+\label{fig:proof-after-inductive-step}
+\end{sidewaysfigure}
+\clearpage
+ 
+\item \textbf{Superstep-construction}: This step requies proof of invariant and multiple applications of interchange primitive as explained earlier. 
+
+\item \textbf{AddBranches}: The proof required is the reverse of branch-primitive. However, a key requirement is that branch-primitive can be applied only when we have a {\tt well-formed-ccdfg}, so we need to ensure that the structure of the $loop$ before adding branches is such that the final $loop$ in the pipelined CCDFG is indeed a {\tt well-formed-ccdfg}.  
+
+\end{enumerate}
 
 \section{Lessons from Previous False Starts}
 
@@ -310,11 +486,11 @@ by ignoring the back edge and proving the correspondence
 between an unrolled loop and the pipeline.
 Only after substantially completing this proof and in
 attempting to extend it to the pipeline with the back edge
-did we realize that the extension does not work. Section~\ref{sec:proof} describes a key
-invariant we defined to deal with this problem.
+did we realize that the extension does not work. So, we came up with a key
+invariant to deal with this problem.
 
 Also, we attempted initially to stick to the previously proposed algorithm
-and try to prove that the semantic run of the input is equal to the semantic run
+and try to prove that the execution of the input is equal to the execution
 of the output for the complete algorithm. To do that, we need to claim that
 the output pipeline does not introduce any data hazards.
 Hazard freedom entails showing the

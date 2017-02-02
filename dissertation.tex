@@ -2,7 +2,8 @@
 \def\docdate {Friday 7^{th}. October 2016}
 
 \documentclass[12pt]{report}
-%\usepackage{cite}
+\usepackage[refpage]{nomencl}
+\usepackage{rotating}
 \usepackage{url}
 \usepackage{natbib}
 \setlength{\bibsep}{4pt}
@@ -13,10 +14,19 @@
 \usepackage{amssymb}
 \usepackage{amsfonts}
 \usepackage{epsfig}
+\usepackage{fancyvrb}
+\usepackage{comment}
 
 \usepackage{setspace}
 \usepackage{algpseudocode}
 \usepackage{algorithm}
+
+\newcommand\floor[1]{\lfloor#1\rfloor}
+\newcommand\ceil[1]{\lceil#1\rceil}
+
+%\usepackage{mathtools}
+%\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+%\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
 
 \usepackage{float}
 \usepackage{latexsym, amssymb}
@@ -62,6 +72,26 @@
 \renewcommand*\contentsname{Table of Contents}
 \usepackage{titletoc}% http://ctan.org/pkg/titletoc
 
+%\usepackage{glossaries}
+%\makeglossaries
+%\newglossaryentry{esl}{name={ESL}, description={Electronic System Level}}
+
+\tablespagefalse
+\usepackage{glossaries}
+
+\makeglossaries
+
+\newglossaryentry{esl}{%
+name={ESL},%
+description={Electronic System Level}%
+}
+
+\newglossaryentry{rtl}{%
+name={RTL},%
+description={Register Transfer Level}%
+}
+
+
 \begin{document}
 
     \title{Certifying Loop Pipelining Transformations in Behavioral Synthesis}
@@ -83,20 +113,13 @@
         \newoddpage
         \fi
         \prefatory
-        \prefacesection{CheckList for Disha}
-            \input{todo}
-         \ifoddchapterpage
-        \newoddpage
-        \fi
-        \prefatory
         \prefacesection{Abstract}
             \input{0abstract}    
         \ifoddchapterpage
         \newoddpage
         \fi
         \prefacesection{Dedication}
-            \begin{center} {\em To my grandmothers} \end{center}
-            \begin{center} {\em To my } \end{center}
+            %\begin{center} {\em To my } \end{center}
         \ifoddchapterpage
         \newoddpage
         \fi
@@ -113,10 +136,11 @@
     \newevenpage
     \fi
     \body
-
+    
     \copyrightyear{2016}
     \figurespagetrue
-    \tablespagetrue
+    \tablespagefalse
+   % \printglossary[style=long]
 
     %\setcounter{page}{0}
 \titlecontents*{chapter}% <section-type>
@@ -152,6 +176,10 @@
     \newoddpage
     \fi
     \input{7SEC}
+    \ifoddchapterpage
+    \newoddpage
+    \fi
+    \input{related-work}
     \ifoddchapterpage
     \newoddpage
     \fi

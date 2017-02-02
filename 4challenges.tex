@@ -1,71 +1,6 @@
 \chapter{Research Challenges}
 \label{sec:challenges}
 
-\section{Previously Proposed Algorithm}
-\label{subsec:kecheng's algorithm}
-
-\noindent
-Given a set of microsteps $M$, a set of edges $E$, and a schedule $S$ of a
-sequential CCDFG, and pipeline parameters (pipeline
-interval $I$ and number of scheduling steps in the loop
-$N$), the algorithm~\cite{hrx:dac-12} generates new microsteps, edges and
-schedule for the pipelined CCDFG. Values of these inputs are readily available from
-intermediate feedback reports from the behavioral synthesis
-tool. Given CCDFG $C$, this algorithm replaces
-each loop $L$ in $C$ with the pipelined refinement of
-$L$. The steps of the algorithm are explained below with the
-help of the example introduced earlier in Figure~\ref{fig:high-level-synthesis}(a).
-
-\begin{figure}
-\begin{center}
-\begin{tabular}{cc}
-\includegraphics[height=1.7in]{fig-proposal/generate-scheduling-steps}
-& %\hspace{0.1cm}
-\includegraphics[height=1.7in]{fig-proposal/shadow-reg}
-\\
-(a) & (b)
-\end{tabular}
-\end{center}
-\caption{(a) Generate scheduling steps. After the pipeline is full, adding new iteration simply repeats the pipeline full stage. (b) Generate shadow registers.}
-\label{fig:algorithm}
-\end{figure}
-
-%\begin{enumerate}[--]
-{\bf Generate scheduling steps:} Figure~\ref{fig:algorithm}(a) shows the addition of scheduling steps of new iterations of a loop according to the pipeline interval. Here, the loop has three scheduling steps and a pipeline interval of one. The new scheduling steps are generated till the pipeline is full. This step generates a new schedule.
-For the sake of easily identifying microsteps later, every microstep in the unrolled loop is given a unique name even though
-a microstep is the same across different iterations. We would later see how
-this trivial step affects the theorem proving process adversely.
-
-{\bf Generate shadow registers:} In order to pipeline a loop, we have to remove data hazards. We first identify all variables that can be overwritten when executing overlapped iterations and then introduce new temporary variables called shadow registers to avoid overwrites. In Figure~\ref{fig:algorithm}(b), the value of $a'$ will be overwritten in $X_2$ before $Z_1$ can read it. So, we introduce a new pipeline register $a\_reg$ which gets assigned the value of $a'$ and replace subsequent reads of $a'$ with reads of $a\_reg$. In the next scheduling step, $a\_reg2$ is assigned the value of $a\_reg$ and further subsequent reads of $a'$ are replaced with reads of $a\_reg2$. Introducing shadow registers in such a way removes the possibility of data hazard as the value of the old variable is stored in a new temporary shadow variable every scheduling step.
-
-\begin{figure}[t!]
-\begin{center}
-\begin{tabular}{cc}
-\includegraphics[height=1.6in]{fig-proposal/generate-edges}
-& %\hspace{0.1cm}
-\includegraphics[height=1.6in]{fig-proposal/data-forwarding}
-\\
-(a) & (b)
-\end{tabular}
-\end{center}
-\caption{(a) Generate edges for pipelined CCDFG (b) Data propagation.}
-\label{fig:algorithm-2}
-\end{figure}
-
-{\bf Generate edges:} The algorithm adds the edges for data and control flow as shown in Figure~\ref{fig:algorithm-2}(a). Control edges are edges from one scheduling superstep to the next. Data forwarding edges forward data from one scheduling step to the next in a single scheduling superstep. Loop edge denotes the repetition of the pipeline full stage. Exit edges are from the scheduling steps to the $Exit$ block. Note that a pipelinable loop has only one $Exit$ block. Even though the concept of $Exit$ edges was introduced, but they were not implemented in the algorithm.
-
-{\bf Generate data propagation:} In Figure~\ref{fig:algorithm-2}(b), we require the value of $i'$ in $X_2$ to execute the following statement:
-$$ i := \phi [0, Entry][i', Z]$$
-But, if we execute $X_2$ before executing $Z_1$, the value of $i'$ has not yet been produced. To avoid such a situation, the algorithm relocates the assignment statement $i := i'$ to $Y_2$ just before it needs to be read. The assignment statement $i := i'$ is obtained from the $\phi$-statement $i := \phi [0, Entry][i', Z]$ since in the sequential execution, we would have entered $X_2$ from $Z$ block.
-
-This relocation is however incorrect. Note that we have moved the assignment statement across the conditional branch. $$ if [not (i<N)] goto Exit $$ If we would have executed the sequential CCDFG and the exit condition in the second iteration is true, we would have executed the microstep $i := i'$ before exit. However, now in the pipelined CCDFG, if we exit in $X_2$, we do not execute the microstep $i := i'$. Hence, the value of $i$ is not same in the sequential and pipelined CCDFGs. This is a bug that we found in this algorithm: it incorrectly allows relocation of microsteps across conditional branch statements.
-We realized that the authors of the previous proposed algorithm had not accounted for the exit conditions while testing the algorithm. As a result, this bug was not found prior to our formalization. We provide a fix to this bug in our loop pipelining algorithm in Section~\ref{sec:pipelining-algorithm}.
-
-Even after we fix the bug in the proposed algorithm, it is not easy to verify this algorithm as it is.
-We elaborate below on the challenges
-in verifying the proposed algorithm and in general, any complex algorithm not written while keeping theorem proving in mind.
-%\end{enumerate}
-
 \section{Challenges associated with Formal reasoning}
 
 To understand the complexities involved in mechanical
@@ -87,7 +22,7 @@ actually maintain succinct, interesting invariants.
 
 For instance, to prove the correctness statement in the previous algorithm, 
 we want to prove that the complete algorithm follows
-the invariant that the semantic run of input CCDFG is equal to semantically running the output CCDFG.
+the invariant that the execution of input CCDFG is equal to execution of the output CCDFG.
 Since the algorithm is composed of four concrete steps -- generate scheduling steps, add shadow register,
 add edges and data propagation, we intuitively expect the individual steps or at least a combination of steps in sequence to
 follow this invariant. However, since the algorithm has not been designed keeping theorem proving
@@ -139,13 +74,13 @@ algorithm using those primitives, achieving the dual goal of
 mechanical reasoning of the algorithm and amenability of the
 resulting reference model to SEC.
 
-\section{Importace of using Formal Methods for checking correctness}
+\section{Importance of using Formal Methods for checking correctness}
 
-Formally verifying an algorithm gives confidence that the pipelined design is indeed correct. We can claim that if a pipeline loop is created, then there are no additional data hazards which have not been accounted for. Also, since our final theorem proves that executing a sequential loop is same as executing the pipelined loop generated from our algorithm, we can confidently say that our algorithm is complete and data and control flows are well-maintained.   
+Formally certifying an algorithm gives confidence that the pipelined design is indeed correct. We can claim that if a pipeline loop is created, then there are no additional data hazards which have not been accounted for. Also, since our final theorem proves that executing a sequential loop is same as executing the pipelined loop generated from our algorithm, we can confidently say that our algorithm is complete and data and control flows are well-maintained.  
 
-Checking correctness using formal methods prompted us to address the issues lacking in the previous algorithm. To ensure that control flow is maintained, we had to deal with branches. The previous algorithm introduces the concept of Exit edges but does not explain/implement them. The previous authors checked the output of their algorithm with RTL under the assumption that the loop never exits, hence they did not face any issue while testing. However, removing a conditional branch in a loop and furthermore, adding the conditional branch back in the middle of a pipelined loop requires complex reasoning which we manage using one of our primitives, explained in ~\ref{sec:pipelining-algo}.
+Note that our framework is independent of the inner workings of a specific tool, and can be applied to certify designs synthesized by different tools from a broad class of ESL descriptions. Also, the approach produces a certified reference flow, which makes explicit generic invariants that must be preserved by different transformations. Checking correctness using formal methods prompted us to address the issues lacking in the previous algorithm. To ensure that control flow is maintained, we had to deal with branches. The previous algorithm introduces the concept of Exit edges but does not explain/implement them. The previous authors checked the output of their algorithm with RTL under the assumption that the loop never exits, hence they did not face any issue while testing. However, removing a conditional branch in a loop and furthermore, adding the conditional branch back in the middle of a pipelined loop requires complex reasoning which we manage using one of our primitives, explained in Chapter~\ref{sec:pipelining-algorithm}.
 
-Also, the invariant that data flow is maintained at each step enabled us to find a bug in the previous algorithm. The previous algorithm moves a statement to make sure one particular data hazard is removed, but in doing so they move the statement across a conditional branch statement. Our primitves ensure that such a move is not possible. We have restructred the data propagation step so that instead of going across a conditional branch in the same iteration, the movement of step is now to the previous iteration, explained in ~\ref{sec:pipelining-algo}. 
+Also, the invariant that data flow is maintained at each step enabled us to find a bug in the previous algorithm. The previous algorithm moves a statement to make sure one particular data hazard is removed, but in doing so they move the statement across a conditional branch statement. Our primitves ensure that such a move is not possible. We have restructred the data propagation step so that instead of going across a conditional branch in the same iteration, the movement of step is now to the previous iteration, explained in Chapter ~\ref{sec:pipelining-algorithm}. 
 
 %Furthermore, there is a different mindset required when we merely write an algorithm Vs when we want to prove an algorithm using theorem proving. For example, adding a shadow register step may look like a trivial step which requires simple reasoning about read and write variables, but when we have to mathematically prove that such a step maintains the control and data flow, we have to reason about the fact that the new variable is indeed a new variable not introduced anywhere else in the algorithm. 
 

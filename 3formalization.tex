@@ -18,19 +18,36 @@ corresponding values.
 
 The semantics of CCDFG require a formalization of the
 underlying language used to represent the individual
-instructions in each scheduling step.  The underlying
-language we use is the LLVM~\cite{llvm}.  It is a popular
-compiler infrastructure for many behavioral synthesis tools
-and includes an assembly language front-end.  At the point
-of this writing we support a limited subset of LLVM, which
-however is sufficient to handle all the designs we have
+instructions in each scheduling step. The underlying
+language we use is the LLVM~\cite{llvm-phi-Jordans}.  It is a popular
+compiler infrastructure for many behavioral synthesis tools~\cite{xpilot,legup} and includes an assembly language front-end.  We currently support
+only a subset of LLVM operations which are required to handle all the designs we have
 seen.  Instructions supported include assignment, load,
 store, bounded arithmetic, bit vectors, arrays, and pointer
-manipulation instructions.  We define the syntax of each
+manipulation instructions.  Note that the reasoning involved 
+in creating a pipelined CCDFG does not involve the exact 
+syntax of any operation. We are merely concerned with a way 
+to find the variables which are read and written at each step.
+Increasing the operations database in our algorithm 
+is expected to increase the time taken to prove certain primitives as much 
+more analysis needs to be done.
+However, it would not affect the logical reasoning of the primitives, the overall
+algorithm and the proof.  
+We define the syntax of each
 type of statement by defining an ACL2 predicate.  For
 example, in our syntax, an assignment statement can be
 expressed as a list of a variable and an
 expression.
+
+\small
+\begin{verbatim}
+(defun assignment-statement-p (x)
+  (and (equal (len x) 1)
+       (and (equal (len (car x)) 2)
+            (first (car x)) (symbolp (first (car x)))
+            (expression-p (second (car x))))))
+\end{verbatim}
+\normalsize
 
 An expression can further be of multiple types, %\eg, 
 load
@@ -41,17 +58,34 @@ appropriate number of arguments.
 
 We provide semantics to these instructions through a
 state-based operational formalization as is common with
-ACL2.  We define the notion of a CCDFG state, which includes
+ACL2~\cite{liu}. We define the notion of a CCDFG state, which includes
 the states of the variables, memory, pointers, etc.  Then we
 define the semantics of each instruction by specifying how
 it changes the state.  Thus, for an assignment statement we
-will have a function {\tt execute-assignment} that specifies
+will have a function execute-assignment that specifies
 the effect of executing the assignment statement on a CCDFG
 state.
 
+\small
+\begin{verbatim}
+(defun add-expression-p (x)
+  (and (equal (len x) 3)
+       (equal (first x)  'add)
+       (variable-or-numberp (second x))
+       (variable-or-numberp (third x))))
+
+(defun expression-p (x)
+  (and (consp x)
+       (or (load-expression-p x) 
+       		(add-expression-p x) 
+       		(xor-expression-p x)...)))
+\end{verbatim}
+\normalsize
+
 Defining the semantics of most supported statements is
 straightforward, with one exception.  The exception is the
-so-called ``$\phi$-construct'' available in LLVM.  A
+so-called ``$\phi$-construct'' available in LLVM~\cite{llvmphi}. 
+A
 $\phi$-construct is a list of $\phi$-statements.  A
 $\phi$-statement is $v := \phi [\sigma, bb1] [\tau, bb2]$,
 where $v$ is a variable, $\sigma$ and $\tau$ are
@@ -67,6 +101,63 @@ they are used to evaluate the value of loop carried dependencies.
 Consequently, the complexity induced
 by this instruction cannot be avoided.
 
+\small
+\begin{verbatim}
+(defun phi-expression-p (x)
+  (and (consp x) (equal (len x) 1)
+       (consp (car x)) (> (len (car x)) 2)
+       (equal (caar x) 'phi) (phi-l (cdr (car x)))))
+
+(defun phi-statement-p (x)
+  (and (consp x) (equal (len x) 2)
+       (symbolp (first x)) (first x)
+       (phi-expression-p (cdr x))))
+\end{verbatim}
+\normalsize
+
+Here {\tt phi-1} recognizes an expression of the form {\tt
+  ((E0 b) (E1 b-prime))} where {\tt E0} and {\tt E1} are
+expressions and {\tt b} and {\tt b-prime} are symbols
+representing basic blocks.  Thus in ACL2, the
+$\phi$-statement looks like {\tt (v (phi ((E0 b) (E1
+  b-prime))))}.  Finally, the execution semantics requires
+the additional parameter {\tt prev-bb} to track the previous
+basic block.
+
+%% Comment: Function definition for execute-phi uses the functions
+%%evaluate-val, replace-val and variables-of which are not
+%%explained.
+
+\small
+\begin{verbatim}
+(defun choose (choices prev-bb)
+  (if (or (equal (nth 1 (first choices)) prev-bb)
+          (equal (symbol-name (nth 1 (first choices))) prev-bb))
+      (nth 0 (first choices))
+    (nth 0 (second choices))))
+    
+(defun evaluate-val (val bindings)
+  (if (symbolp val) 
+      (cdr (assoc-equal val bindings)) 
+    val))
+
+(defun execute-phi (stmt init-state prev-bb)
+  (let* ((expr (cdr stmt))
+         (var (first stmt))
+         (val (evaluate-val (choose (cdr (car expr)) prev-bb) 
+                                   (car init-state))))
+    (list (replace-var var val (variables-of init-state)) 
+          (memory-of init-state) 
+          (pointers-of init-state))))         
+\end{verbatim}
+\normalsize
+
+%% Added
+The {\em init-state} represents the state of a CCDFG before executing $\phi$-statement. The function 
+{\em variables-of} is used to get a list of all the variables of {\em init-state} with their corresponding values. 
+{\em replace-var} replaces the values of the variable {var} to {val} in the list of those variables.
+
+
 \section{Correctness of Loop Pipelining}
 %A behavioral synthesis tool automatically generates a RTL design from an ESL design through a series of
 %transformations. Pipelining a loop is a critical
@@ -80,47 +171,68 @@ a loop with the following restrictions~\cite{hrx:dac-12}:
 \item no branching between the scheduling steps.
 \end{enumerate}
 
-A loop is defined by existence of one conditional branch and one unconditional branch. Unconditional branch is at the end of the loop which enforces that the loop CCDFG is executed again from top. Conditional branch ensures that depending on the current value of the exitcondition variable loop can exit if required. Other intermediate branches have already been handled by compiler transformations prior to the pipelining step so we need not consider them in our reasoning. 
+A well-formed pipelinable loop is expected to have only one conditional branch and one unconditional branch. 
+Unconditional branch is at the end of the loop dictating the back edge which enforces that the loop CCDFG is executed again from the first step. 
+Conditional branch ensures that depending on the current value of the exit condition variable, a loop can exit if required. 
+Other intermediate branches have already been handled by compiler and scheduling transformations prior to the pipelining transformation
+so we need not consider them in our reasoning. There is one $\phi$-construct in the first scheduling step which handles the value assigned
+to loop carried variables depending on whether we are entering loop for the first time or not. 
 
-These restrictions are not meant to simplify the problem, but reflect
+These restrictions are not just meant to simplify the problem, but reflect
 the kind of loops that can be actually pipelined during behavioral
 synthesis.  For instance, synthesis tools typically require inner
 loops to have been fully unrolled (perhaps by a previous compiler
 transformation) in order to pipeline the outer loop.
 
-\begin{figure}
+\begin{figure}[H]
 \begin{center}
-\begin{tabular}{ccc}
-\includegraphics[height=1.6in]{fig-proposal/C-code}
-&
-\includegraphics[height=1.6in]{fig-proposal/seq-ccdfg-1}
-&
-\includegraphics[height=1.6in]{fig-proposal/pp-clock-cycles}
+\begin{tabular}{cc}
+\includegraphics[height=2in]{fig-proposal/C-code}
+& \hspace{1cm}
+\includegraphics[height=3in]{fig-proposal/seq-ccdfg-1}
 \\
-(a) & (b) & (c)
+(a) & \hspace{2cm} (b)
 \end{tabular}
 \end{center}
-\caption{(a) Loop in C; (b) Loop CCDFG before pipelining ; (c) Pipelining increases throughput}
-\label{fig:high-level-synthesis}
+\caption{(a) Loop in C (b) Loop CCDFG before pipelining}
+\label{fig:high-level-synthesis-1}
 \end{figure}
 
-Figure~\ref{fig:high-level-synthesis}(a) illustrates the C
+Figure~\ref{fig:high-level-synthesis-1}(a) illustrates the C
 code (ESL description) for a loop.  The C code does not have
 a schedule or the concept of a clock cycle.
-Figure~\ref{fig:high-level-synthesis}(b) shows CCDFG of the
+Figure~\ref{fig:high-level-synthesis-1}(b) shows CCDFG of the
 sequential loop just before loop pipelining. The loop has
 three scheduling steps: $X$, $Y$ and $Z$.  The scheduling
 step before the loop is $Entry$ and after the loop is
-$Exit$. Note that there is a $\phi$-statement in the
+$Exit$. The edges  in the CCDFG indicate the control flow.
+Note that the sequential CCDFG has Static Single Assignment (SSA) structure
+, as a result variable $a$ and $i$ are not assigned 
+more than once and we require the quoted variables $a'$ and $i'$.
+Note that there is a $\phi$-statement in the
 first scheduling step of the loop.  This $\phi$-statement
 accounts for those variables whose values are dependent on
 the variables evaluated in a previous iteration.
 
-Behavioral synthesis tools use complicated heuristics and aggressive scheduling strategies to
-find an optimized pipeline interval (clock cycles after which a new iteration can be started such that there are no data hazards). One iteration of the sequential design takes three
-clock cycles. Observe in Figure~\ref{fig:high-level-synthesis}(c) that with the pipeline interval of one, the three iterations of the pipelined loop
+\begin{figure}
+\begin{center}
+\begin{tabular}{c}
+\includegraphics[height=2.4in]{fig-proposal/pp-clock-cycles}
+\end{tabular}
+\end{center}
+\caption{Pipelining increases throughput}
+\label{fig:high-level-synthesis-3}
+\end{figure}
+
+
+Behavioral synthesis tools use complicated heuristics and aggressive scheduling strategies 
+to find an optimized pipeline interval (clock cycles after which a new iteration can 
+be started such that there are no data hazards). One iteration of the sequential design takes three
+clock cycles. Observe in Figure~\ref{fig:high-level-synthesis-3} that with the 
+pipeline interval of one, the three iterations of the pipelined loop
 take five clock cycles as opposed to nine clock cycles in the sequential loop.
-Loop pipelining reduces the number of clock cycles required to execute the loop, hence this transformation is used by synthesis tools to increase throughput and reduce overall latency.
+Loop pipelining reduces the number of clock cycles required to execute the loop, 
+hence this transformation is used by synthesis tools to increase throughput and reduce overall latency.
 
 %% Since, reasoning about execution becomes difficult if we have to
 %% always keep track of the previous scheduling step, we treat the first
@@ -134,6 +246,103 @@ Loop pipelining reduces the number of clock cycles required to execute the loop,
 %% \label{subsec:correctness-defn}
 
 %% IMPORTANT : take a look again, if we want to keep all iterations same, we can start from k = 0
+
+The main lemma involved in the correspondence proof between
+the sequential and pipelined CCDFG can paraphrased in English as follows. 
+
+\begin{quote}
+ If the pipeline generation succeeds without error,
+ executing the pipelined CCDFG loop for $k$ iterations
+ generates the same state of the relevant variables as
+ executing the sequential CCDFG for some $k'$ iterations.
+ The explicit value of $k'$ is given by the term {\tt (+ (-
+   k 1) (ceil m pp-interval))}.
+ \end{quote}
+
+The theorem can be stated in ACL2 as follows.\footnote{The theorem mentioned in the paper does not contain
+all the hypotheses. Please refer to our proof scripts
+for final form of this theorem.}
+
+\small
+\begin{verbatim}
+    
+(defthm correctness-statement-key-lemma
+    (implies (and (posp k)
+                  (posp pp-interval)
+                  (posp m)
+                  (equal pp-ccdfg 
+                     (superstep-construction pre loop pp-interval m))
+                  (not (equal pp-ccdfg "error"))))
+    (equal (in-order (get-real (run-ccdfg (first pp-ccdfg) 
+                                         (second pp-ccdfg) 
+                            	            (third pp-ccdfg) 
+                            	            k init-state prev)))
+              (in-order (run-ccdfg pre loop nil 
+								               		                  (+ (- k 1) (ceil m pp-interval)) 
+                                 		init-state prev)))))
+\end{verbatim}
+\normalsize
+
+The theorem involves several ACL2 functions, \eg,
+{\tt get-real}, \\ {\tt superstep-construction}, etc. 
+For details, one can
+  refer to our proof-scripts. 
+%We do not
+%discuss the detailed definitions of these functions in the
+%paper, but they are available with the supporting ACL2
+%script for this workshop.  
+We provide a brief, informal
+description of some of the critical functions in the theorem.
+Two key functions that appear in the theorem above are {\tt
+  superstep-construction} and {\tt run-ccdfg}.  
+
+The function {\tt run-ccdfg} runs a CCDFG including a
+pipelinable loop in three parts, first the prologue before the
+loop, next the loop itself, and finally the epilogue past the
+loop.\footnote{Of course one can have the standard function
+  {\tt run} that executes the entire CCDFG rather than in
+  parts.  However, for reasons that will be clear when we
+  define the invariant, in our case it is easier to do most
+  of the work with the execution in three parts and then
+  assemble them into a final theorem about the CCDFG run in
+  the end.}  
+
+  This function is defined as follows, where {\tt
+  prefix} determines the previous scheduling step of the
+iteration (required to resolve $\phi$-statements).
+
+\begin{verbatim}
+(defun run-ccdfg (pre loop post iterations init-state prev)
+  (let* ((state1 (run-block-set pre init-state nil prev))
+         (state2 (run-blocks-iters loop state1 iterations (prefix loop)))
+         (state3 (run-block-set post state2 nil (prefix post)))
+    state3))
+\end{verbatim}
+
+The
+function {\tt superstep-construction} combines the
+scheduling steps of successive iterations to create the
+``scheduling supersteps'' of pipelined CCDFG.  If there are
+data-hazards and pipelined CCDFG cannot be generated as per
+the pp-interval given, the function generates an ``error''.
+
+
+
+Finally, the function {\tt get-real} removes from the
+pipelined CCDFG state, all auxiliary variables introduced by
+the pipeline generation algorithm itself, leaving only the
+variables that correspond to the sequential
+CCDFG,\footnote{The algorithm has to introduce new variables
+  in order to eliminate hazards.  One consequence of this is
+  that the new variables so introduced must not conflict
+  with any variable subsequently used in the CCDFG.  Since
+  we do not have a way to ensure generation of fresh
+  variables, this constraint has to be imposed in the
+  hypothesis.}  and {\tt in-order} normalizes ``sorts'' the
+components in a CCDFG state in a normal form so that the
+sequential and pipelined CCDFG states can be compared with
+{\tt equal}.
+
 
  \smallskip
 \noindent {\textbf {Correctness Statement:}}
@@ -159,7 +368,6 @@ variables introduced by the algorithm in $f'$ are irrelevant since they are not 
 subsequently.
 
 
-%% Important: Ask Sandip: How are we accounting for condition 2 in our correctness statement ??? Am I missing something??
 
 %\begin{quote}
 %Let $L$ be a loop in CCDFG $C$, and let $L_{\alpha}$ be the
