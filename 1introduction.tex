@@ -42,7 +42,7 @@ specification.
 \end{tabular}
 
 \end{center}
-\caption{Behavioral Synthesis Flow}
+\caption{Behavioral synthesis flow}
 \label{fig:behavioral-synthesis-flow}
 \end{figure}
 
@@ -52,7 +52,7 @@ specification.
 \includegraphics[height=2.8in]{fig-proposal/simple-pipeline}
 \end{tabular}
 \end{center}
-\caption{Loop Pipelining}
+\caption{Loop pipelining}
 \label{fig:simple-pipeline}
 \end{figure}
 
@@ -60,7 +60,7 @@ To satisfy the power and performance demands
 of modern applications, a behavioral synthesis tool applies
 hundreds of transformations. As shown in Figure~\ref{fig:behavioral-synthesis-flow}, 
 a typical behavioral synthesis flow can be roughly divided into three phases: 
-compiler transformations; scheduling transformations and 
+compiler transformations; scheduling transformations; 
 resource allocation and control synthesis. 
 Commercial
 synthesis tools are highly complex software involving
@@ -128,7 +128,7 @@ later in Section~\ref{subsec:reference-pipeline}. Certification is a key compone
 without which correctness of behavioral synthesis process for pipelined designs cannot be claimed.
 Therefore, this dissertation on 
 developing a certified loop pipelining algorithm using our framework of certified 
-primitives is important to facilitating formal verification of behaviorally synthesized
+primitives is important in facilitating formal verification of behaviorally synthesized
  pipeline designs.
 
 \section{Problem Statement}
@@ -140,14 +140,14 @@ Certifying an algorithm especially as complex as loop pipelining is not easy by 
 \includegraphics[height=3.3in]{fig-proposal/seq-and-pp}
 \end{tabular}
 \end{center}
-\caption{Back-edge in Sequential Loop Vs Back-edge in Pipelined Loop}
+\caption{Back-edge in sequential loop Vs back-edge in pipelined loop}
 \label{fig:seq-and-pp}
 \end{figure}
 
 \begin{enumerate}[--]
-\item {\em Formalizing an invariant that links loop in a sequential design with loop in the corresponding pipelined design.} As shown in Figure~\ref{fig:seq-and-pp}, a sequential loop executes its iterations in sequence. The previous loop iteration is complete before the next iteration. A pipelined design, however, overlaps the consecutive iterations of a given design based on pipeline interval. As a result, a loop in the pipelined design executes statements from different iterations of the corresponding sequential loop design. Identifying a provable inductive invariant that links the backedge in the sequential loop with the backedge in the pipelined loop is, therefore, a major challenge.
+\item {\em Formalizing an invariant that links loop in a sequential design with loop in the corresponding pipelined design.} As shown in Figure~\ref{fig:seq-and-pp}, a sequential loop executes its iterations in sequence. The previous loop iteration is complete before the next iteration starts. A pipelined design, however, overlaps the consecutive iterations of a given design based on the pipeline interval. As a result, a loop in the pipelined design executes statements from different iterations of the corresponding sequential loop design. Identifying a provable inductive invariant that links the backedge in the sequential loop with the backedge in the pipelined loop is, therefore, a major challenge.
 \item {\em Identifying and certifying underlying primitives in a loop pipelining algorithm.} Certifying a loop pipelining algorithm requires a complex invariant to prove that executing a sequential loop is equivalent to executing a pipelined loop. Identifying the pieces which would make this certification managable is a difficult task. We decompose the algorithm into certifiable primitives. We prove that if each primitive maintains an invariant that the execution of the intermediate representation before and after application of the primitive is same, we can prove that the algorithm also maintains the invariant. This approach, however, requires a crisp understanding of the essential steps involved in developing a pipeline loop from a sequential loop. We need to succinctly identify primitives which maintain the given invariant and are also certifiable by theorem proving. Each primitive would require a systematic approach for its proof.
-\item {\em Identify and maintain control flow by proper placement of branches.}  Branch conditions dictate the control flow. Presence of conditional and unconditional branch instructions in a loop means that the loop is no longer executed in a straight line. At each application of primitive, we need to ensure that this control flow is not disturbed or is atleast well accounted for. 
+\item {\em Identify and maintain control flow by proper placement of branches.}  Branch conditions dictate the control flow. Presence of conditional and unconditional branch instructions in a loop means that the loop is no longer executed in a straight line. At each application of primitive, we need to ensure that this control flow is not disturbed and is well accounted for. 
 \item {\em Certifying the complete loop pipelining algorithm based on certified primitives.} Although, the primitives act as backbone for our algorithm, their certification alone does not automatically certify the entire algorithm. We need to identify the conditions under which a primitive is correct and make sure that every application of the primitive in the algorithm has the required assumptions.
 \end{enumerate}
 
@@ -159,7 +159,7 @@ Certifying an algorithm especially as complex as loop pipelining is not easy by 
 \includegraphics[width=4.75in]{fig-proposal/our-approach}
 \end{tabular}
 \end{center}
-\caption{Overview of our Approach}
+\caption{Overview of our approach}
 \label{fig:our-approach}
 \end{figure}
 
@@ -178,7 +178,7 @@ The major \textbf{contributions} of our dissertation are:
 \item Identifying the key provable primitives essential in pipelining algorithms for behavioral synthesis and certifying these primitives in ACL2 theorem prover;
 \item Formalizing an invariant to link the sequential loop before pipelining with the pipelined loop;
 \item Developing our own executable loop pipelining algorithm in ACL2 using those primitives and certifying this algorithm using ACL2 theorem prover;
-\item Testing our certified loop pipelining algorithm on industrial-strength designs
+\item Testing our certified loop pipelining algorithm on varied designs
 \end{enumerate}
 
 \section {Outline}
@@ -191,6 +191,6 @@ discusses an earlier proposed algorithm and how and why we have chosen a differe
 Chapter~\ref{sec:pipelining-algorithm} discusses our framework and a certified loop pipelining 
 algorithm we have developed using the framework. Chapter~\ref{sec:proof} provides a proof 
 sketch for our algorithm. Chapter~\ref{sec:SEC} provides evaluation of robustness and 
-scalability of our algorithm on industrial-strength designs. The related work is discussed in Chapter~\ref{chapter:related-work}.
+scalability of our algorithm on various designs from different application domains. The related work is discussed in Chapter~\ref{chapter:related-work}.
 We then conclude with the major 
 contributions of this dissertation and future work in Chapter~\ref{sec:research-plan}.

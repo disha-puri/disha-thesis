@@ -34,7 +34,7 @@ that the primitives are correct.
 \begin{center}
 \includegraphics[height=3.5in]{fig-proposal/shadow-reg-primitive}
 \end{center}
-\caption{Shadow Register Primitive}
+\caption{Shadow register primitive}
 \label{fig:primitives2}
 \end{figure}
  
@@ -84,7 +84,7 @@ unconditional branch and ensure that it points back to the beginning of loop $S$
 \begin{center}
 \includegraphics[height=3.25in]{fig-proposal/conditional-branch-primitive}
 \end{center}
-\caption{Branch Primitive}
+\caption{Branch primitive}
 \label{fig:primitives3}
 \end{figure} 
  
@@ -107,7 +107,7 @@ follows~\cite{disha-itp14}.
 \includegraphics[width=5.5in]{fig-proposal/algorithm-after-superstep-construction}
 \end{tabular}
 \end{center}
-\caption{Superstep Construction}
+\caption{Superstep construction}
 \label{fig:algo3-3}
 \end{figure}
 
@@ -195,7 +195,7 @@ following two proof requirements.
 \begin{center}
 \includegraphics[width=4.25in]{fig-proposal/invariant-inductive-step}
 \end{center}
-\caption{Invariant Inductive Step}
+\caption{Invariant inductive step}
 \label{fig:invariant-inductive-step}
 \end{figure}
 
@@ -267,7 +267,7 @@ explicitly capture the state of the executions that have
 been partially completed during each iteration of the
 pipeline ({\em ie}, each traversal of the back edge).
 
-\section{Correctness of Our Algorithm}
+\section{Correctness of our algorithm}
 
 The algorithm is essentially built from ground-up using primitives
 as shown in Chapter~\ref{sec:pipelining-algorithm}. However, 
@@ -396,7 +396,7 @@ individual primitives.
 \begin{center}
 \includegraphics[height=3.5in]{fig-proposal/proof-remove-branches}
 \end{center}
-\caption{Proof Sketch for Remove Branches Stage}
+\caption{Proof sketch for remove branches stage}
 \label{fig:proof-remove-branches}
 \end{figure}
 
@@ -413,7 +413,7 @@ that addition of new microsteps does not affect the basic structure of the CCDFG
 \begin{center}
 \includegraphics[width=5.5in]{fig-proposal/proof-after-phi}
 \end{center}
-\caption{Proof Sketch for $\phi$-to-assign Step}
+\caption{Proof sketch for $\phi$-to-assign step}
 \label{fig:proof-after-phi}
 \end{figure}
 
@@ -431,8 +431,6 @@ statically and symbolically execute $C$ and $C'$, in order
 to be provable by induction.  Furthermore the functions so
 introduced for static symbolic execution must themselves be
 proven correct.
-
-
 
 \item {\textbf {Data Propagation}} : In the data propagation stage, the first step involves identifying 
 the appropriate statements that cause conflict and applying interchange primitive multiple times 
@@ -454,7 +452,7 @@ variables across a number of microsteps. The proof is analogous to the proof of 
 \begin{center}
 \includegraphics[width=5.5in]{fig-proposal/proof-after-data-propagation-basecase}
 \end{center}
-\caption{Proof Sketch for Data Propagation Step Base Case}
+\caption{Proof sketch for Data Propagation Step Base Case}
 \label{fig:proof-after-data-propagation-basecase}
 \end{figure}
 
@@ -463,7 +461,7 @@ variables across a number of microsteps. The proof is analogous to the proof of 
 \begin{center}
 \includegraphics[height=4in]{fig-proposal/proof-after-inductive-step}
 \end{center}
-\caption{Proof Sketch for Data Propagation Step}
+\caption{Proof sketch for data propagation step}
 \label{fig:proof-after-inductive-step}
 \end{sidewaysfigure}
 \clearpage

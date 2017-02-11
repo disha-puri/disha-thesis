@@ -32,7 +32,8 @@ the
 \end{enumerate}
 After the three phases above, the design can be expressed in
 RTL.  The synthesized RTL may be subjected to further manual
-tweaks to optimize for area, power, etc. Each of these transformations are non-trivial. The end result is a hardware implemtation which has a huge abstraction gap from the input ESL description. 
+tweaks to optimize for area, power, etc. Each transformation is non-trivial. The end result is a hardware 
+implementation which has a huge abstraction gap from the input ESL description. 
 
 \section{Overall Certification Model for Behaviorally Synthesized Pipelines}
 
@@ -42,7 +43,7 @@ tweaks to optimize for area, power, etc. Each of these transformations are non-t
 \includegraphics[height=2.8in]{fig-proposal/certification-framework}
 \end{tabular}
 \end{center}
-\caption{Certification Model for Behaviorally Synthesized Pipelines}
+\caption{Certification model for behaviorally synthesized pipelines}
 \label{fig:certification-framework}
 \end{figure}
 
@@ -117,8 +118,8 @@ algorithm can only compare two IRs that are structurally close.  If a
 transformation significantly transforms the structure of an IR then
 the heuristics for detecting corresponding variables between the two
 IRs will not succeed, causing equivalence checking to fail.
-Unfortunately, loop pipelining falls in the category of
-transformations that significantly changes the structure of the IR.
+Loop pipelining falls in the category of
+transformations that significantly change the structure of the IR.
 It is a quintessential transformation that changes the control/data
 flow and introduces additional control structures (%\eg, 
 to eliminate
@@ -141,7 +142,7 @@ handling its certification.
 \includegraphics[height=3in]{fig-proposal/ref-pipeline-approach}
 \end{tabular}
 \end{center}
-\caption{Certifying Loop Pipelining Algorithm using SEC and Theorem Proving}
+\caption{Certifying loop pipelining algorithm using SEC and theorem proving}
 \label{fig:ref-pipeline-approach}
 \end{figure}
 
@@ -192,7 +193,7 @@ verification or theorem proving; consequently, the algorithm, while
 simpler than the one implemented in a synthesis tool, was still a highly
 complex piece of code.  In particular, since it was not written with
 correctness certification in mind, it is difficult to decompose the algorithm into
-manageable pieces with nice invariants.
+manageable pieces with succint invariants.
 
 One way to address this problem is to ``buckle down'' and
 verify the pipeline generation algorithm (and fixing the

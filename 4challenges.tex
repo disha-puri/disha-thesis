@@ -27,7 +27,7 @@ Since the algorithm is composed of four concrete steps -- generate scheduling st
 add edges and data propagation, we intuitively expect the individual steps or at least a combination of steps in sequence to
 follow this invariant. However, since the algorithm has not been designed keeping theorem proving
 in mind, that is not the case. For example, if
-we consider the first step of the proposed algorithm -- {\bf generating new scheduling steps} by
+we consider the first step of the proposed algorithm ``{\bf generating new scheduling steps}'' by
 overlapping executions of an unrolled loop, we know that the execution 
 of the sequential scheduling steps is not the same as the execution of new scheduling steps
 unless we prove that there are no data hazards. But, data hazards are not completely eliminated till the last step of the algorithm. Note, that the complete algorithm does follow the invariant as expected, but reasoning about the structure of the
